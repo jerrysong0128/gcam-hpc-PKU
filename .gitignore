@@ -28,6 +28,7 @@
 # libs directory
 libs
 archive
+jars
 
 # Executables
 *.exe
