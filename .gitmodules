@@ -1,0 +1,3 @@
+[submodule "gcam-core-gcam-v8.2"]
+	path = gcam-core
+	url = https://github.com/JGCRI/gcam-core.git
