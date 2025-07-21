@@ -28,10 +28,9 @@
 # libs directory
 libs
 archive
-jars
+gcam-core
 
 # Executables
-*.exe
 *.out
 *.app
 

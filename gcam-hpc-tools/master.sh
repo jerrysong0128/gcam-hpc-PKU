@@ -3,21 +3,22 @@
 # This is the main script used for running GCAM on the Evergreen cluster
 # It is adapted from the NERSC version!
 
-#echo "To ensure most up-to-date configuration-sets directory, run copy_config.sh"
-#./copy_config.sh
+source /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/gcam_workspace.setup
 
-export COMP_ID=<absolute user name here>
-export GCAMDIR=/sfs/qumulo/qhome/${COMP_ID}/gcam-core
-export SCRATCHDIR=/gpfs/gpfs0/scratch/${COMP_ID}
-#export SCRATCHDIR=/sfs/lustre/bahamut/scratch/${COMP_ID}
+if [ -z "$GCAM_WORKSPACE" ]; then
+    echo "NOTICE: Please set GCAM_WORKSPACE to the absolute path of your gcam-hpc-PKU repo"
+    echo "Example: export GCAM_WORKSPACE=/path/to/your/gcam-workspace"
+fi
+export GCAMDIR=${GCAM_WORKSPACE}/gcam-core
+export SCRATCHDIR=${GCAM_WORKSPACE}/gcam-scratch
 
 
 EXPECTED_ARGS=2
 
-RUN_SCRIPT=run_model.sh
+RUN_SCRIPT=run-tools/run_model.sh
 
-PBS_TEMPLATEFILE=gcam_template.slurm
-PBS_BATCHFILE=gcam.slurm
+PBS_TEMPLATEFILE=./gcam-hpc-PKU/gcam-hpc-tools/run-tools/run-template/gcam_template.slurm
+PBS_BATCHFILE=./gcam-hpc-PKU/gcam-hpc-tools/run-tools/run-template/gcam.slurm
 
 
 
@@ -41,7 +42,7 @@ INPUT_OPTIONS="--include=*.xml --include=Hist_to_2008_Annual.csv --exclude=.svn 
 #otherwise will append
 #jf-- commented out first line bc it was throwing errors
 #mv -f ${GCAMDIR}/${RUN_DIR_NAME}/output/queryoutall*.csv ${GCAMDIR}/${RUN_DIR_NAME}/output/queries/
-cd ${GCAMDIR}/${RUN_DIR_NAME}
+#cd ${GCAMDIR}/${RUN_DIR_NAME}
 
 # --------------------------------------------------------------------------------------------
 # 2. Generate the required permutations of the base configuration file
@@ -56,7 +57,7 @@ echo "Generate permutations (y/n)?"
 read generate
 if [[ $generate = 'y' ]]; then
         echo "Generating..."
-        ./permutator.sh $1 $2
+        ./gcam-hpc-PKU/gcam-hpc-tools/run-tools/permutator.sh $1 $2
         if [[ $? -lt 0 ]]; then
                 exit;
         fi
@@ -79,7 +80,7 @@ sed "s/NUM_TASKS/${num_tasks}/g" $PBS_TEMPLATEFILE \
 	> $PBS_BATCHFILE
 
 echo "
-   srun ./mpi_wrapper.exe ${template_path}/${template_root} ${first_task}
+   srun ./gcam-hpc-PKU/gcam-hpc-tools/run-tools/mpi_wrapper.exe ${template_path}/${template_root} ${first_task}
 "	>> $PBS_BATCHFILE
 
 # --------------------------------------------------------------------------------------------
@@ -90,10 +91,9 @@ echo "Run $tasks tasks on cluster (y/n)?"
 read run
 
 if [[ $run = 'y' ]]; then
-	echo "Copying input directory to scratch..."
-	rm -rf ${SCRATCHDIR}/input	 	# just in case
-	cp -fR ${GCAMDIR}/input ${SCRATCHDIR}/input
-    echo "Done copying input directory"
+	echo "Syncing input directory to scratch (only changed files)..."
+	rsync -av --delete "${GCAMDIR}/input/" "${SCRATCHDIR}/input/"
+	echo "Done syncing input directory"	
 
 	echo "Creating empty output and error directories in scratch directory..."
     

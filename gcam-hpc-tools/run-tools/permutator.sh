@@ -25,7 +25,7 @@ ERROR_ILLEGAL_PERMNUM=-3
 
 SCENARIO_SECTION_PATTERN=/ScenarioComponents
 
-PERL_PARSER=batch_parser.pl
+PERL_PARSER=./gcam-hpc-PKU/gcam-hpc-tools/run-tools/batch_parser.pl
 
 declare -a grouplist		# the file groupings read in from batch file
 declare -a groupsizelist	# group sizes, used to index into filelist
@@ -152,8 +152,12 @@ fi
 
 template_file=$1
 
-template_file_root=`echo $template_file | cut -d . -f 1`
-template_file_extension=`echo $template_file | cut -d . -f 2`
+# Robust filename parsing
+template_file_basename=$(basename -- "$template_file")
+template_file_dir=$(dirname -- "$template_file")
+template_file_root="${template_file_dir}/${template_file_basename%.*}"
+template_file_extension="${template_file_basename##*.}"
+
 
 # Find spot in template file to insert our permutations
 template_head=`grep -m 1 -n $SCENARIO_SECTION_PATTERN $template_file | cut -d : -f 1`
