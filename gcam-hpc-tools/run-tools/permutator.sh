@@ -25,7 +25,7 @@ ERROR_ILLEGAL_PERMNUM=-3
 
 SCENARIO_SECTION_PATTERN=/ScenarioComponents
 
-PERL_PARSER=./gcam-hpc-PKU/gcam-hpc-tools/run-tools/batch_parser.pl
+PERL_PARSER=./gcam-hpc-tools/run-tools/batch_parser.pl
 
 declare -a grouplist		# the file groupings read in from batch file
 declare -a groupsizelist	# group sizes, used to index into filelist

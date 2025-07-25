@@ -3,7 +3,7 @@
 # This is the main script used for running GCAM on the Evergreen cluster
 # It is adapted from the NERSC version!
 
-source /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/gcam_workspace.setup
+source ./gcam-hpc-tools/gcam_workspace.setup
 
 if [ -z "$GCAM_WORKSPACE" ]; then
     echo "NOTICE: Please set GCAM_WORKSPACE to the absolute path of your gcam-hpc-PKU repo"
@@ -15,10 +15,10 @@ export SCRATCHDIR=${GCAM_WORKSPACE}/gcam-scratch
 
 EXPECTED_ARGS=2
 
-RUN_SCRIPT=run-tools/run_model.sh
+RUN_SCRIPT=./gcam-hpc-tools/run-tools/run_model.sh
 
-PBS_TEMPLATEFILE=./gcam-hpc-PKU/gcam-hpc-tools/run-tools/run-template/gcam_template.slurm
-PBS_BATCHFILE=./gcam-hpc-PKU/gcam-hpc-tools/run-tools/run-template/gcam.slurm
+PBS_TEMPLATEFILE=./gcam-hpc-tools/run-tools/run-template/gcam_template_WM2.slurm
+PBS_BATCHFILE=./gcam-hpc-tools/run-tools/run-template/gcam.slurm
 
 
 
@@ -57,7 +57,7 @@ echo "Generate permutations (y/n)?"
 read generate
 if [[ $generate = 'y' ]]; then
         echo "Generating..."
-        ./gcam-hpc-PKU/gcam-hpc-tools/run-tools/permutator.sh $1 $2
+        ./gcam-hpc-tools/run-tools/permutator.sh $1 $2
         if [[ $? -lt 0 ]]; then
                 exit;
         fi
@@ -71,17 +71,19 @@ first_task=0
 
 echo "Number of SIMULTANEOUS RUNS to run (normally same as total runs)?"
 read num_tasks
+ntasks_total=$((8 * num_tasks))
 
 let "last_task=$num_tasks - 1"
 
 let "tasks=$last_task - $first_task + 1"
 
-sed "s/NUM_TASKS/${num_tasks}/g" $PBS_TEMPLATEFILE \
-	> $PBS_BATCHFILE
-
-echo "
-   srun ./gcam-hpc-PKU/gcam-hpc-tools/run-tools/mpi_wrapper.exe ${template_path}/${template_root} ${first_task}
-"	>> $PBS_BATCHFILE
+sed -e "s/NUM_TASKS/${num_tasks}/g" -e "s/NTASKS_TOTAL/${ntasks_total}/g" "$PBS_TEMPLATEFILE" \
+> "$PBS_BATCHFILE"
+	
+for (( i=0; i<$num_tasks; i++ )); do
+    echo "srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe ${template_path}/${template_root} $i &" >> $PBS_BATCHFILE
+done
+echo "wait" >> $PBS_BATCHFILE
 
 # --------------------------------------------------------------------------------------------
 # 4  Go ahead and run!
@@ -103,29 +105,17 @@ if [[ $run = 'y' ]]; then
     fi
     mkdir ${SCRATCHDIR}/output
 
-
 	echo "Copying queries directory to scratch output..."
 	rm -rf ${SCRATCHDIR}/output/queries	 	# just in case
 	cp -fR ${GCAMDIR}/output/queries ${SCRATCHDIR}/output/queries
     echo "Done copying queries directory"
 
-	
 	if [[ -d ${SCRATCHDIR/errors} ]]; then
         rm -rf ${SCRATCHDIR}/errors
 		echo "Removed existing scratch errors folder"
     fi
     mkdir ${SCRATCHDIR}/errors
-
-
-	#echo "copying addons to scratch..."
-	#this is to avoid deleting addons directory when we go to build updated versions of GCAM source code, which require overwriting the gcam dir.
-	#cp -fR ../gcam_addons ${SCRATCHDIR}/input/addons
-	#./copy_addons.sh
-	#echo "done copying addon input files to scratch"
-
-		
 	
-    
     echo "Done creating scratch directories."
 
 

@@ -3,7 +3,10 @@
 #include <string>
 #include <sstream>
 
-// To compile: mpiCC -lmpi -o mpi_wrapper.exe mpi_wrapper.cpp
+// To compile: 
+// module load openmpi/3.1.3-gcc-7.2.0
+// mpiicpc -o mpi_wrapper.exe mpi_wrapper.cpp
+// mpiCC -lmpi -o mpi_wrapper.exe mpi_wrapper.cpp
 using namespace std;
 
 #include "mpi.h"
@@ -35,7 +38,7 @@ int main (int argc, char * argv[]) {
     //cout << final_id << endl;
     
     stringstream command2;
-    command2 << "bash run_model.sh " << argv[1] << " " << final_id;
+    command2 << "bash ./gcam-hpc-tools/run-tools/run_model.sh " << argv[1] << " " << final_id;
 
     cout << "About to run: " << command2.str() << endl;
    

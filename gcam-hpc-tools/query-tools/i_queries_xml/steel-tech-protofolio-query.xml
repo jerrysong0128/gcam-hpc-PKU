@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queries>
+<aQuery>
+     <supplyDemandQuery title="iron and steel production by tech">
+       <axis1 name="technology">technology</axis1>
+       <axis2 name="Year">physical-output[@vintage]</axis2>
+       <xPath buildList="true" dataName="output" group="false" sumAll="false">*[@type='sector' and (@name='iron and steel')]/*[@type='subsector' and not(@name='Imports')]/*[@type='technology']/*[@type='output']/physical-output/node()</xPath>
+       <comments/>
+     </supplyDemandQuery>
+</aQuery>
+<aQuery>
+      <emissionsQueryBuilder title="CO2 emissions by tech (excluding resource production)">
+        <axis1 name="technology">technology</axis1>
+        <axis2 name="Year">emissions</axis2>
+        <xPath buildList="true" dataName="emissions" group="false" sumAll="false">*[@type = 'sector' ]/*[@type='subsector']/*[@type='technology']//CO2/emissions/node()</xPath>
+        <comments/>
+      </emissionsQueryBuilder>
+</aQuery>
+<aQuery>
+      <supplyDemandQuery title="iron and steel inputs by tech (energy and feedstocks)">
+          <axis1 name="input">input</axis1>
+          <axis2 name="Year">demand-physical[@vintage]</axis2>
+          <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and (@name='iron and steel')]//*[@type='input']/demand-physical/node()</xPath>
+          <comments/>
+      </supplyDemandQuery>
+</aQuery>
+<aQuery>
+      <supplyDemandQuery title="industry final energy by tech and fuel">
+              <axis1 name="technology">technology</axis1>
+              <axis2 name="Year">demand-physical[@vintage]</axis2>
+              <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]/
+               *[@type='subsector']/*[@type='technology']/
+               *[@type='input' and (@name='delivered biomass' or @name='delivered coal' or @name='district heat' or
+               @name='H2 wholesale delivery' or @name='H2 wholesale dispensing' or @name='H2 industrial' or
+               @name='elect_td_ind' or @name='wholesale gas' or @name='regional woodpulp for energy' or
+               @name='refined liquids industrial' or @name='global solar resource')]/demand-physical/node()</xPath>
+              <comments>paper technology direct input assigned to electricity</comments>
+              <labelRewriteList append-values="false">
+                <level name="technology">
+                    <rewrite from="paper" to="electricity"/>
+                </level>
+              </labelRewriteList>
+      </supplyDemandQuery>
+</aQuery>
+<aQuery>
+        <supplyDemandQuery title="traded iron and steel">
+            <axis1 name="input">input</axis1>
+            <axis2 name="Year">demand-physical[@vintage]</axis2>
+            <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and contains(@name, 'traded iron and steel')]/*[@type='subsector']//*[@type='input']/demand-physical/node()</xPath>
+            <comments/>
+        </supplyDemandQuery>
+</aQuery>
+<aQuery>
+        <supplyDemandQuery title="regional iron and steel sources">
+            <axis1 name="input">input</axis1>
+            <axis2 name="Year">demand-physical[@vintage]</axis2>
+            <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and contains(@name, 'regional iron and steel')]/*[@type='subsector']//*[@type='input']/demand-physical/node()</xPath>
+            <comments/>
+        </supplyDemandQuery>
+</aQuery>
+<aQuery>
+        <emissionsQueryBuilder title="CO2 emissions by sector (excluding resource production)">
+          <axis1 name="sector">sector</axis1>
+          <axis2 name="Year">emissions</axis2>
+          <xPath buildList="true" dataName="emissions" group="false" sumAll="false">*[@type='sector']//CO2/emissions/node()</xPath>
+          <comments/>
+        </emissionsQueryBuilder>
+</aQuery>
+</queries>

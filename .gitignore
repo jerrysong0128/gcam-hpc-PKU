@@ -59,6 +59,7 @@ gcam-core
 ## Build generated
 build/
 DerivedData
+gcam-scratch
 
 ## Various settings
 *.pbxuser
@@ -77,3 +78,4 @@ xcuserdata
 *.xcuserstate
 .Rproj.user
 input/gcamdata/inst/extdata/emissions/CEDS/desktop.ini
+./gcam-hpc-tools/gcam_workspace.setup

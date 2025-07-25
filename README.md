@@ -14,20 +14,26 @@ This guide describes how to set up and build GCAM for high-performance computing
 First, clone both the main GCAM core repository and the PKU HPC tools repository into your workspace directory.
 
 ```sh
-git clone https://github.com/JGCRI/gcam-core.git
 git clone https://github.com/jerrysong0128/gcam-hpc-PKU.git
 ```
 
 ---
-
-
-### B-1.2: Load Required Submodules (Initialize Hector Submodule for GCAM Core)
+### B-1.2: Load GCAM-core
+```sh
+git submodule status
+git submodule update --init gcam-core
+```
+---
+### B-1.3: Load Required Submodules (Initialize Hector Submodule for GCAM Core)
 
 GCAM uses Hector as its climate module, which is included as a git submodule. You need to initialize and update this submodule:
 
 ```sh
 cd gcam-core
 make install_hector
+#or
+git submodule update --init cvs/objects/climate/source/hector
+git submodule update --init output/modelinterface/modelinterface
 ```
 This command ensures that the Hector source code is downloaded and available for building GCAM.
 
@@ -63,7 +69,7 @@ mkdir -p gcam-hpc-PKU/gcam-hpc-tools/build-tools/libs/tbb-linux
 tar -xzf gcam-hpc-PKU/archive/oneapi-tbb-2021.8.0-lin.tgz -C gcam-hpc-PKU/gcam-hpc-tools/build-tools/libs/tbb-linux --strip-components=1
 ```
 This command creates the target directory and extracts the Java runtime there.
----
+
 ## Step B-3: Build GCAM
 
 ### B-3.1: Set Environment Variables
@@ -110,7 +116,7 @@ make[1]: Leaving directory '/lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-
 ```
 If see this the gcam.exe. build completed.
 
----
+
 
 ## Notes
 
@@ -126,7 +132,8 @@ If see this the gcam.exe. build completed.
 
 
 ## Step R-2: Run gcam-core
-
-./gcam-hpc-PKU/gcam-hpc-tools/master.sh \
-    ./gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/configuration_empty_scenario_components.xml \
-    ./gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/reference_batch.xml
+```sh
+./gcam-hpc-tools/master.sh \
+    ./gcam-hpc-tools/configuration-sets/configuration_empty_scenario_components.xml \
+    ./gcam-hpc-tools/configuration-sets/reference_batch_1.xml
+```
