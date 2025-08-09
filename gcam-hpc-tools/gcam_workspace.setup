@@ -1,4 +1,4 @@
 #WEIMING-2
-export GCAM_WORKSPACE=/lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU
+export GCAM_HPC_WORKSPACE=/lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU
 #WEIMING-1
-#export GCAM_WORKSPACE=/gpfs/share/home/2501112459/Desktop/GCAM_workspace/gcam-hpc-PKU
+#export GCAM_HPC_WORKSPACE=/gpfs/share/home/2501112459/Desktop/GCAM_workspace/gcam-hpc-PKU

@@ -137,3 +137,37 @@ If see this the gcam.exe. build completed.
     ./gcam-hpc-tools/configuration-sets/configuration_empty_scenario_components.xml \
     ./gcam-hpc-tools/configuration-sets/reference_batch_1.xml
 ```
+
+```sh
+configuration_empty_scenario_components
+Generate permutations (y/n)?
+y
+Generating...
+Permutator script ./gcam-hpc-tools/run-tools/permutator.sh
+1 files will be generated in ./gcam-hpc-tools/configuration-sets
+Write files to disk (y/n)? y
+./gcam-hpc-tools/run-tools/permutator.sh done.
+Number of SIMULTANEOUS RUNS to run (normally same as total runs)?
+1
+Run 1 tasks on cluster (y/n)?
+y
+Syncing input directory to scratch (only changed files)...
+sending incremental file list
+gcamdata/gcamdata.Rproj
+
+sent 78,495 bytes  received 107 bytes  157,204.00 bytes/sec
+total size is 5,284,110,090  speedup is 67,226.15
+Done syncing input directory
+Creating empty output and error directories in scratch directory...
+Removed existing scratch output folder
+Copying queries directory to scratch output...
+Done copying queries directory
+Removed existing scratch errors folder
+Done creating scratch directories.
+We are off and running with job XXXXX
+```
+
+
+## Step QUERY
+
+see detail in ./gcam-hpc-tools/query-tools/gcam-steel-demand-extract.ipynb

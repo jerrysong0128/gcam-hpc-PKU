@@ -1,0 +1,31 @@
+<ModelInterfaceBatch>
+    
+    <class name="ModelInterface.ModelGUI2.DbViewer">
+        <command name="XMLDB Batch File">
+            
+            <queryFile>../output/xmldb_queries/query_aggregated_land_allocation_global.xml</queryFile>
+
+            <outFile>./inter_query/queryout_CO2_emissions_by_region_global.csv</outFile>
+            
+            <xmldbLocation>./db/database_basexdb</xmldbLocation>
+            
+            <batchQueryResultsInDifferentSheets>false</batchQueryResultsInDifferentSheets>
+            <batchQueryIncludeCharts>false</batchQueryIncludeCharts>
+            <batchQuerySplitRunsInDifferentSheets>false</batchQuerySplitRunsInDifferentSheets>
+            <batchQueryReplaceResults>true</batchQueryReplaceResults>
+        </command>
+        <command name="XMLDB Batch File">
+            
+            <queryFile>../output/xmldb_queries/query_building_floorspace_global.xml</queryFile>
+            
+            <outFile>./inter_query/queryout_building_floorspace_global.csv</outFile>
+            
+            <xmldbLocation>./db/database_basexdb</xmldbLocation>
+            
+            <batchQueryResultsInDifferentSheets>false</batchQueryResultsInDifferentSheets>
+            <batchQueryIncludeCharts>false</batchQueryIncludeCharts>
+            <batchQuerySplitRunsInDifferentSheets>false</batchQuerySplitRunsInDifferentSheets>
+            <batchQueryReplaceResults>true</batchQueryReplaceResults>
+        </command>
+    </class>
+</ModelInterfaceBatch>

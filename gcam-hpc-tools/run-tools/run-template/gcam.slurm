@@ -15,6 +15,6 @@ module load mpi/2021.8.0   # Instead of 2021.3.0 which isn't available
 
 export OMP_NUM_THREADS=1
 ulimit -s unlimited
-srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe ./gcam-hpc-tools/configuration-sets/configuration_empty_scenario_components 0 &
-srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe ./gcam-hpc-tools/configuration-sets/configuration_empty_scenario_components 1 &
+srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/default/v82_default_scenario_components 0 &
+srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/default/v82_default_scenario_components 1 &
 wait

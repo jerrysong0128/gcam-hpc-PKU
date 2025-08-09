@@ -2,14 +2,7 @@
 
 # 1. Clean up module environment
 module load gcc/12.2.0  # Must match build compiler exactly
-export CLASSPATH=$(find $GCAM_WORKSPACE/gcam-hpc-tools/build-tools/libs/jars -name "*.jar" | tr '\n' ':')
-
-
-
-
-# Add unique database ports per task
-export BASEX_PORT=$((8992 + $2))
-echo "Using BaseX port: $BASEX_PORT for task $2"
+export CLASSPATH="$(find ${GCAM_HPC_WORKSPACE}/gcam-hpc-tools/build-tools/libs/jars -name "*.jar" | tr '\n' ':'):${GCAMDIR}/output/modelinterface/ModelInterface.jar"
 
 # Script expects two parameters: the configuration filename and the task number
 # Filename should be the base name, not including job number or extension
@@ -34,23 +27,24 @@ echo "Configuration file: $CONFIGURATION_FILE"
 
 
 rm -rf ${SCRATCHDIR}/exe_$2	 	# just in case
-#mkdir ${SCRATCHDIR}/exe_$2
 cp -fR ${GCAMDIR}/exe ${SCRATCHDIR}/exe_$2
 cd ${SCRATCHDIR}/exe_$2
 
-
-
 echo "Running Minicam with ${CONFIGURATION_FILE}..."
 # let's keep a copy of config file in the running directory
-cp ${GCAM_WORKSPACE}/$CONFIGURATION_FILE ./config_this.xml
+cp ${CONFIGURATION_FILE} ./config_this.xml
 
 chmod 2775 gcam.exe
+chmod 2775 -R ${SCRATCHDIR}/exe_$2
 
 echo "Starting gcam"
-./gcam.exe -C${GCAM_WORKSPACE}/$CONFIGURATION_FILE > output_${2}.txt 
+./gcam.exe -C${CONFIGURATION_FILE} > "${OUTPUTDIR}/output_${2}.txt"
 err=$?
 
-chmod 2775 -R ${SCRATCHDIR}/exe_$2
+# make ./inter_query
+mkdir -p ./inter_query
+# Query the output file
+java -cp "$CLASSPATH" ModelInterface.InterfaceMain -b ../output/xmldb_batch/xmldb_batch_0_test.xml
 
 if [[ $err -gt 0 ]]; then
 	echo "Error code reported: $err"
@@ -60,5 +54,3 @@ else
 fi
 
 echo "Task $2 is done!"
-
-

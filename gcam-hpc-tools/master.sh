@@ -3,69 +3,103 @@
 # This is the main script used for running GCAM on the Evergreen cluster
 # It is adapted from the NERSC version!
 
-source ./gcam-hpc-tools/gcam_workspace.setup
 
-if [ -z "$GCAM_WORKSPACE" ]; then
-    echo "NOTICE: Please set GCAM_WORKSPACE to the absolute path of your gcam-hpc-PKU repo"
-    echo "Example: export GCAM_WORKSPACE=/path/to/your/gcam-workspace"
+# --------------------------------------------------------------------------------------------
+# 1. Set up the environment
+# --------------------------------------------------------------------------------------------
+
+
+source /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/gcam_workspace.setup
+
+cd ${GCAM_HPC_WORKSPACE}
+
+if [ -z "$GCAM_HPC_WORKSPACE" ]; then
+    echo "NOTICE: Please set GCAM_HPC_WORKSPACE to the absolute path of your gcam-hpc-PKU repo"
+    echo "Example: export GCAM_HPC_WORKSPACE=/lustre/home/2501112459/Desktop/GCAM_HPC_WORKSPACE/gcam-hpc-PKU"
+    exit 1
 fi
-export GCAMDIR=${GCAM_WORKSPACE}/gcam-core
-export SCRATCHDIR=${GCAM_WORKSPACE}/gcam-scratch
 
+export GCAMDIR="${GCAM_HPC_WORKSPACE}/gcam-core"
+export SCRATCHDIR="${GCAM_HPC_WORKSPACE}/gcam-scratch"
+export TOOLDIR="${GCAM_HPC_WORKSPACE}/gcam-hpc-tools"
+
+RUN_SCRIPT="${TOOLDIR}/run-tools/run_model.sh"
+PBS_TEMPLATEFILE="${TOOLDIR}/run-tools/run-template/gcam_template_WM2.slurm"
+PBS_BATCHFILE="${TOOLDIR}/run-tools/run-template/gcam.slurm"
+
+timestamp=$(date +"%Y%m%d_%H%M%S")
+export OUTPUTDIR="${SCRATCHDIR}/output/run_${timestamp}"
+mkdir -p "$OUTPUTDIR"
+chmod 775 "${OUTPUTDIR}"
+echo "Output directory: $OUTPUTDIR"
+
+# --------------------------------------------------------------------------------------------
+# 2. Set the configuration and batch files
+# --------------------------------------------------------------------------------------------
 
 EXPECTED_ARGS=2
 
-RUN_SCRIPT=./gcam-hpc-tools/run-tools/run_model.sh
+DEFAULT_CONFIG="${TOOLDIR}/configuration-sets/default/v82_default_scenario_components.xml"
+DEFAULT_BATCH="${TOOLDIR}/configuration-sets/default/v82_default_batch_2.xml"
 
-PBS_TEMPLATEFILE=./gcam-hpc-tools/run-tools/run-template/gcam_template_WM2.slurm
-PBS_BATCHFILE=./gcam-hpc-tools/run-tools/run-template/gcam.slurm
-
-
-
-if [ $# -eq $EXPECTED_ARGS ] ; then
-	echo "This is $0"
+if [ $# -eq $EXPECTED_ARGS ]; then
+    CONFIG_FILE="$1"
+    BATCH_FILE="$2"
+elif [ $# -eq 0 ]; then
+    echo "No arguments given, using defaults:"
+    CONFIG_FILE="$DEFAULT_CONFIG"
+    BATCH_FILE="$DEFAULT_BATCH"
 else
-	echo "Usage: <script name> <template config file> <batch file>"
-	exit 
+    echo "Usage: <script name> <template config file> <batch file>"
+    exit
 fi
 
+echo "Config file: $(basename "$CONFIG_FILE")"
+echo "Batch file: $(basename "$BATCH_FILE")"
+
 # --------------------------------------------------------------------------------------------
-# 1. Copy everything over to scratch directory and work there
+# 3. Copy GCAM input directories to scratch
 # --------------------------------------------------------------------------------------------
 
 
-# skip sync of files (possibly would want to do this from HOME to EMSL_HOME?)
-RUN_DIR_NAME=
-#WORKSPACE_DIR_NAME=/sfs/qumulo/qhome/${COMP_ID}/gcam_dac_high_elec
-INPUT_OPTIONS="--include=*.xml --include=Hist_to_2008_Annual.csv --exclude=.svn --exclude=*.*"
+INPUT_OPTIONS="--include=*.xml --include=*.ini --include=climate/*.csv --include=Hist_to_2008_Annual.csv --include=*.jar --exclude=.svn --exclude=*.*" 
+OUT_OPTIONS="--include=*.xml"
+echo "Syncing GCAM input into scratch directory..."
 
-#otherwise will append
-#jf-- commented out first line bc it was throwing errors
-#mv -f ${GCAMDIR}/${RUN_DIR_NAME}/output/queryoutall*.csv ${GCAMDIR}/${RUN_DIR_NAME}/output/queries/
-#cd ${GCAMDIR}/${RUN_DIR_NAME}
+echo "Syncing input directory to $SCRATCHDIR..."
+rsync -av $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
+rsync -a ${GCAMDIR}/input/magicc/inputs ${SCRATCHDIR}/input/magicc/
+
+echo "Syncing output quries to $SCRATCHDIR..."
+rsync -av $OUT_OPTIONS ${TOOLDIR}/query-tools/java_queries/xmldb_batch ${SCRATCHDIR}/output/
+rsync -av $OUT_OPTIONS ${TOOLDIR}/query-tools/java_queries/xmldb_queries ${SCRATCHDIR}/output/
+rsync -av $OUT_OPTIONS ${GCAMDIR}/output/queries ${SCRATCHDIR}/output/
 
 # --------------------------------------------------------------------------------------------
 # 2. Generate the required permutations of the base configuration file
 # --------------------------------------------------------------------------------------------
-        
-template_path=`dirname $1`
-template_root=`basename $1 | cut -f 1 -d.`
-echo $template_path
-echo $template_root
 
 echo "Generate permutations (y/n)?"
 read generate
 if [[ $generate = 'y' ]]; then
-        echo "Generating..."
-        ./gcam-hpc-tools/run-tools/permutator.sh $1 $2
-        if [[ $? -lt 0 ]]; then
-                exit;
-        fi
+    echo "Generating..."
+    "${TOOLDIR}/run-tools/permutator.sh" "$CONFIG_FILE" "$BATCH_FILE"
+	if [[ $? -ne 0 ]]; then
+	    echo "Permutator failed, exiting."
+	    exit 1
+	fi
+else
+    exit
 fi
 
 # --------------------------------------------------------------------------------------------
 # 3. Figure out how many jobs will be run and generate the gcam.pbs batch file
 # --------------------------------------------------------------------------------------------
+
+template_path=$(dirname "$CONFIG_FILE")
+template_root=$(basename "$CONFIG_FILE" | cut -f 1 -d.)
+echo "$template_path"
+echo "$template_root"
 
 first_task=0
 
@@ -93,39 +127,12 @@ echo "Run $tasks tasks on cluster (y/n)?"
 read run
 
 if [[ $run = 'y' ]]; then
-	echo "Syncing input directory to scratch (only changed files)..."
-	rsync -av --delete "${GCAMDIR}/input/" "${SCRATCHDIR}/input/"
-	echo "Done syncing input directory"	
-
-	echo "Creating empty output and error directories in scratch directory..."
-    
-	if [[ -d ${SCRATCHDIR/output} ]]; then
-        rm -rf ${SCRATCHDIR}/output
-		echo "Removed existing scratch output folder"
-    fi
-    mkdir ${SCRATCHDIR}/output
-
-	echo "Copying queries directory to scratch output..."
-	rm -rf ${SCRATCHDIR}/output/queries	 	# just in case
-	cp -fR ${GCAMDIR}/output/queries ${SCRATCHDIR}/output/queries
-    echo "Done copying queries directory"
-
-	if [[ -d ${SCRATCHDIR/errors} ]]; then
-        rm -rf ${SCRATCHDIR}/errors
-		echo "Removed existing scratch errors folder"
-    fi
-    mkdir ${SCRATCHDIR}/errors
-	
-    echo "Done creating scratch directories."
-
-
-	job=`sbatch $PBS_BATCHFILE`
-	echo "We are off and running with job $job"
-
+    job=$(sbatch --parsable $PBS_BATCHFILE)
+    echo "We are off and running with job $job"
+    job2=$(sbatch --parsable --dependency=afterok:$job ${TOOLDIR}/run-tools/cat_queries.sh)
+    chmod +x ./gcam-hpc-tools/run-tools/watch_pbs.sh
+    ./gcam-hpc-tools/run-tools/watch_pbs.sh
 fi
-
-#./watch_pbs.sh
-
 
 exit
 
