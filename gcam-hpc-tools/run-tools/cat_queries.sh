@@ -7,15 +7,16 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --time=2-00:00:00
 
-for exedir in ./exe_*; do
-    run_idx=$(echo "$exedir" | sed 's|./exe_||')
+for exedir in "${SCRATCHDIR}/exe_"*; do
+    run_idx=$(basename "$exedir" | sed 's|exe_||')
     mkdir -p "${OUTPUTDIR}/out_query_${run_idx}"
-    for file in "$exedir"/inter_query/queryout*.csv; do
+    for file in "$exedir"/inter_query/*.csv; do
         [ -e "$file" ] || continue
-        queryoutname=$(basename "$file" | sed -e "s/queryout/queryoutall/g")
-        cat "$file" > "${OUTPUTDIR}/out_query_${run_idx}/${queryoutname}"
+        cp "$file" "${OUTPUTDIR}/out_query_${run_idx}/"
     done
 done
+echo "Concatenating all CSVs to create Final.csv in ${OUTPUTDIR}..."
+cat "${OUTPUTDIR}"/out_query_*/*.csv > "${OUTPUTDIR}/Final.csv"
 
-# Concatenate all queryoutall*.csv to Final.csv
-cat "${OUTPUTDIR}"/out_query_*/queryoutall* > "${OUTPUTDIR}/Final.csv"
+echo "Cleaning up: deleting all ${SCRATCHDIR}/exe_* directories..."
+rm -rf "${SCRATCHDIR}/exe_"*

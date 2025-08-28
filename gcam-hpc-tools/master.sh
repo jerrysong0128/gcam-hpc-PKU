@@ -15,7 +15,7 @@ cd ${GCAM_HPC_WORKSPACE}
 
 if [ -z "$GCAM_HPC_WORKSPACE" ]; then
     echo "NOTICE: Please set GCAM_HPC_WORKSPACE to the absolute path of your gcam-hpc-PKU repo"
-    echo "Example: export GCAM_HPC_WORKSPACE=/lustre/home/2501112459/Desktop/GCAM_HPC_WORKSPACE/gcam-hpc-PKU"
+    echo "Example: export GCAM_HPC_WORKSPACE=/lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU"
     exit 1
 fi
 
@@ -39,8 +39,8 @@ echo "Output directory: $OUTPUTDIR"
 
 EXPECTED_ARGS=2
 
-DEFAULT_CONFIG="${TOOLDIR}/configuration-sets/default/v82_default_scenario_components.xml"
-DEFAULT_BATCH="${TOOLDIR}/configuration-sets/default/v82_default_batch_2.xml"
+DEFAULT_CONFIG="${TOOLDIR}/configuration-sets/config/v82_default/v82_default_scenario_components.xml"
+DEFAULT_BATCH="${TOOLDIR}/configuration-sets/config/v82_default/v82_default_batch_2.xml"
 
 if [ $# -eq $EXPECTED_ARGS ]; then
     CONFIG_FILE="$1"
@@ -62,18 +62,17 @@ echo "Batch file: $(basename "$BATCH_FILE")"
 # --------------------------------------------------------------------------------------------
 
 
-INPUT_OPTIONS="--include=*.xml --include=*.ini --include=climate/*.csv --include=Hist_to_2008_Annual.csv --include=*.jar --exclude=.svn --exclude=*.*" 
+#INPUT_OPTIONS="--include=*.xml --include=*.ini --include=climate/*.csv --include=Hist_to_2008_Annual.csv --include=*.jar --exclude=.svn --exclude=*.*" 
+INPUT_OPTIONS="--include=*.xml --include=*/ --exclude=*"
 OUT_OPTIONS="--include=*.xml"
-echo "Syncing GCAM input into scratch directory..."
-
+echo "Syncing GCAM files into scratch directory..."
 echo "Syncing input directory to $SCRATCHDIR..."
-rsync -av $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
-rsync -a ${GCAMDIR}/input/magicc/inputs ${SCRATCHDIR}/input/magicc/
+rsync -ai --recursive $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
 
 echo "Syncing output quries to $SCRATCHDIR..."
-rsync -av $OUT_OPTIONS ${TOOLDIR}/query-tools/java_queries/xmldb_batch ${SCRATCHDIR}/output/
-rsync -av $OUT_OPTIONS ${TOOLDIR}/query-tools/java_queries/xmldb_queries ${SCRATCHDIR}/output/
-rsync -av $OUT_OPTIONS ${GCAMDIR}/output/queries ${SCRATCHDIR}/output/
+rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/java_queries/xmldb_batch ${SCRATCHDIR}/output/
+rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/java_queries/xmldb_queries ${SCRATCHDIR}/output/
+rsync -ai $OUT_OPTIONS ${GCAMDIR}/output/queries ${SCRATCHDIR}/output/
 
 # --------------------------------------------------------------------------------------------
 # 2. Generate the required permutations of the base configuration file

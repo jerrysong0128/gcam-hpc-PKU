@@ -137,6 +137,11 @@ If see this the gcam.exe. build completed.
     ./gcam-hpc-tools/configuration-sets/configuration_empty_scenario_components.xml \
     ./gcam-hpc-tools/configuration-sets/reference_batch_1.xml
 ```
+```sh
+/lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/master.sh \
+    /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/configuration_empty_scenario_components.xml \
+    /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/config/events/0828/reference_batch_SSP_MFA_policy.xml
+```
 
 ```sh
 configuration_empty_scenario_components
