@@ -20,3 +20,6 @@ cat "${OUTPUTDIR}"/out_query_*/*.csv > "${OUTPUTDIR}/Final.csv"
 
 echo "Cleaning up: deleting all ${SCRATCHDIR}/exe_* directories..."
 rm -rf "${SCRATCHDIR}/exe_"*
+
+echo "Cleaning up: deleting all files in ${TOOLDIR}/configuration-sets/temp ..."
+rm -rf "${TOOLDIR}/configuration-sets/temp"/*

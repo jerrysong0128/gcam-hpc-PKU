@@ -44,7 +44,7 @@ err=$?
 # make ./inter_query
 mkdir -p ./inter_query
 # Query the output file
-java -cp "$CLASSPATH" ModelInterface.InterfaceMain -b "../output/xmldb_batch/xmldb_batch_0_iron&steel.xml"
+java -cp "$CLASSPATH" ModelInterface.InterfaceMain -b "../output/xmldb_queries/xmldb_batch_jerry.xml"
 
 if [[ $err -gt 0 ]]; then
 	echo "Error code reported: $err"

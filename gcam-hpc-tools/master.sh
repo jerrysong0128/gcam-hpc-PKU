@@ -64,15 +64,13 @@ echo "Batch file: $(basename "$BATCH_FILE")"
 
 #INPUT_OPTIONS="--include=*.xml --include=*.ini --include=climate/*.csv --include=Hist_to_2008_Annual.csv --include=*.jar --exclude=.svn --exclude=*.*" 
 INPUT_OPTIONS="--include=*.xml --include=*/ --exclude=*"
-OUT_OPTIONS="--include=*.xml"
+OUT_OPTIONS="--include=*.xml --exclude=*"
 echo "Syncing GCAM files into scratch directory..."
 echo "Syncing input directory to $SCRATCHDIR..."
 rsync -ai --recursive $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
 
-echo "Syncing output quries to $SCRATCHDIR..."
-rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/java_queries/xmldb_batch ${SCRATCHDIR}/output/
-rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/java_queries/xmldb_queries ${SCRATCHDIR}/output/
-rsync -ai $OUT_OPTIONS ${GCAMDIR}/output/queries ${SCRATCHDIR}/output/
+echo "Syncing output queries to $SCRATCHDIR..."
+rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/user_batch_queries/ ${SCRATCHDIR}/output/xmldb_queries/
 
 # --------------------------------------------------------------------------------------------
 # 2. Generate the required permutations of the base configuration file

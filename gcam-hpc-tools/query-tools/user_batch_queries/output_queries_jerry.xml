@@ -1,0 +1,247 @@
+<?xml version='1.0' encoding='utf-8'?>
+<queries><aQuery><region name="USA" />
+<region name="Africa_Eastern" />
+<region name="Africa_Northern" />
+<region name="Africa_Southern" />
+<region name="Africa_Western" />
+<region name="Australia_NZ" />
+<region name="Brazil" />
+<region name="Canada" />
+<region name="Central America and Caribbean" />
+<region name="Central Asia" />
+<region name="China" />
+<region name="EU-12" />
+<region name="EU-15" />
+<region name="Ukraine" />
+<region name="Europe_Non_EU" />
+<region name="European Free Trade Association" />
+<region name="India" />
+<region name="Indonesia" />
+<region name="Japan" />
+<region name="Mexico" />
+<region name="Middle East" />
+<region name="Pakistan" />
+<region name="Russia" />
+<region name="South Africa" />
+<region name="South America_Northern" />
+<region name="South America_Southern" />
+<region name="South Asia" />
+<region name="South Korea" />
+<region name="Southeast Asia" />
+<region name="Taiwan" />
+<region name="Argentina" />
+<region name="Colombia" />
+<supplyDemandQuery title="industry final energy by tech and fuel">
+                        <axis1 name="technology">technology</axis1>
+                        <axis2 name="Year">demand-physical[@vintage]</axis2>
+                        <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]/
+               *[@type='subsector']/*[@type='technology']/
+               *[@type='input' and (@name='delivered biomass' or @name='delivered coal' or @name='district heat' or
+               @name='H2 wholesale delivery' or @name='H2 wholesale dispensing' or @name='H2 industrial' or
+               @name='elect_td_ind' or @name='wholesale gas' or @name='regional woodpulp for energy' or
+               @name='refined liquids industrial' or @name='global solar resource')]/demand-physical/node()</xPath>
+                        <comments>paper technology direct input assigned to electricity</comments>
+                        <labelRewriteList append-values="false">
+                            <level name="technology">
+                                <rewrite from="paper" to="electricity" />
+                            </level>
+                        </labelRewriteList>
+                    </supplyDemandQuery>
+</aQuery>
+<aQuery><region name="USA" />
+<region name="Africa_Eastern" />
+<region name="Africa_Northern" />
+<region name="Africa_Southern" />
+<region name="Africa_Western" />
+<region name="Australia_NZ" />
+<region name="Brazil" />
+<region name="Canada" />
+<region name="Central America and Caribbean" />
+<region name="Central Asia" />
+<region name="China" />
+<region name="EU-12" />
+<region name="EU-15" />
+<region name="Ukraine" />
+<region name="Europe_Non_EU" />
+<region name="European Free Trade Association" />
+<region name="India" />
+<region name="Indonesia" />
+<region name="Japan" />
+<region name="Mexico" />
+<region name="Middle East" />
+<region name="Pakistan" />
+<region name="Russia" />
+<region name="South Africa" />
+<region name="South America_Northern" />
+<region name="South America_Southern" />
+<region name="South Asia" />
+<region name="South Korea" />
+<region name="Southeast Asia" />
+<region name="Taiwan" />
+<region name="Argentina" />
+<region name="Colombia" />
+<supplyDemandQuery title="iron and steel inputs by tech (energy and feedstocks)">
+                        <axis1 name="input">input</axis1>
+                        <axis2 name="Year">demand-physical[@vintage]</axis2>
+                        <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and (@name='iron and steel')]//*[@type='input']/demand-physical/node()</xPath>
+                        <comments />
+                    </supplyDemandQuery>
+</aQuery>
+<aQuery><region name="USA" />
+<region name="Africa_Eastern" />
+<region name="Africa_Northern" />
+<region name="Africa_Southern" />
+<region name="Africa_Western" />
+<region name="Australia_NZ" />
+<region name="Brazil" />
+<region name="Canada" />
+<region name="Central America and Caribbean" />
+<region name="Central Asia" />
+<region name="China" />
+<region name="EU-12" />
+<region name="EU-15" />
+<region name="Ukraine" />
+<region name="Europe_Non_EU" />
+<region name="European Free Trade Association" />
+<region name="India" />
+<region name="Indonesia" />
+<region name="Japan" />
+<region name="Mexico" />
+<region name="Middle East" />
+<region name="Pakistan" />
+<region name="Russia" />
+<region name="South Africa" />
+<region name="South America_Northern" />
+<region name="South America_Southern" />
+<region name="South Asia" />
+<region name="South Korea" />
+<region name="Southeast Asia" />
+<region name="Taiwan" />
+<region name="Argentina" />
+<region name="Colombia" />
+<supplyDemandQuery title="traded iron and steel">
+                        <axis1 name="input">input</axis1>
+                        <axis2 name="Year">demand-physical[@vintage]</axis2>
+                        <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and contains(@name, 'traded iron and steel')]/*[@type='subsector']//*[@type='input']/demand-physical/node()</xPath>
+                        <comments />
+                    </supplyDemandQuery>
+</aQuery>
+<aQuery><region name="USA" />
+<region name="Africa_Eastern" />
+<region name="Africa_Northern" />
+<region name="Africa_Southern" />
+<region name="Africa_Western" />
+<region name="Australia_NZ" />
+<region name="Brazil" />
+<region name="Canada" />
+<region name="Central America and Caribbean" />
+<region name="Central Asia" />
+<region name="China" />
+<region name="EU-12" />
+<region name="EU-15" />
+<region name="Ukraine" />
+<region name="Europe_Non_EU" />
+<region name="European Free Trade Association" />
+<region name="India" />
+<region name="Indonesia" />
+<region name="Japan" />
+<region name="Mexico" />
+<region name="Middle East" />
+<region name="Pakistan" />
+<region name="Russia" />
+<region name="South Africa" />
+<region name="South America_Northern" />
+<region name="South America_Southern" />
+<region name="South Asia" />
+<region name="South Korea" />
+<region name="Southeast Asia" />
+<region name="Taiwan" />
+<region name="Argentina" />
+<region name="Colombia" />
+<supplyDemandQuery title="regional iron and steel sources">
+                        <axis1 name="input">input</axis1>
+                        <axis2 name="Year">demand-physical[@vintage]</axis2>
+                        <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and contains(@name, 'regional iron and steel')]/*[@type='subsector']//*[@type='input']/demand-physical/node()</xPath>
+                        <comments />
+                    </supplyDemandQuery>
+</aQuery>
+<aQuery><region name="USA" />
+<region name="Africa_Eastern" />
+<region name="Africa_Northern" />
+<region name="Africa_Southern" />
+<region name="Africa_Western" />
+<region name="Australia_NZ" />
+<region name="Brazil" />
+<region name="Canada" />
+<region name="Central America and Caribbean" />
+<region name="Central Asia" />
+<region name="China" />
+<region name="EU-12" />
+<region name="EU-15" />
+<region name="Ukraine" />
+<region name="Europe_Non_EU" />
+<region name="European Free Trade Association" />
+<region name="India" />
+<region name="Indonesia" />
+<region name="Japan" />
+<region name="Mexico" />
+<region name="Middle East" />
+<region name="Pakistan" />
+<region name="Russia" />
+<region name="South Africa" />
+<region name="South America_Northern" />
+<region name="South America_Southern" />
+<region name="South Asia" />
+<region name="South Korea" />
+<region name="Southeast Asia" />
+<region name="Taiwan" />
+<region name="Argentina" />
+<region name="Colombia" />
+<emissionsQueryBuilder title="CO2 emissions by sector (excluding resource production)">
+                <axis1 name="sector">sector</axis1>
+                <axis2 name="Year">emissions</axis2>
+                <xPath buildList="true" dataName="emissions" group="false" sumAll="false">*[@type='sector']//CO2/emissions/node()</xPath>
+                <comments />
+            </emissionsQueryBuilder>
+</aQuery>
+<aQuery><region name="USA" />
+<region name="Africa_Eastern" />
+<region name="Africa_Northern" />
+<region name="Africa_Southern" />
+<region name="Africa_Western" />
+<region name="Australia_NZ" />
+<region name="Brazil" />
+<region name="Canada" />
+<region name="Central America and Caribbean" />
+<region name="Central Asia" />
+<region name="China" />
+<region name="EU-12" />
+<region name="EU-15" />
+<region name="Ukraine" />
+<region name="Europe_Non_EU" />
+<region name="European Free Trade Association" />
+<region name="India" />
+<region name="Indonesia" />
+<region name="Japan" />
+<region name="Mexico" />
+<region name="Middle East" />
+<region name="Pakistan" />
+<region name="Russia" />
+<region name="South Africa" />
+<region name="South America_Northern" />
+<region name="South America_Southern" />
+<region name="South Asia" />
+<region name="South Korea" />
+<region name="Southeast Asia" />
+<region name="Taiwan" />
+<region name="Argentina" />
+<region name="Colombia" />
+<emissionsQueryBuilder title="CO2 emissions by tech (excluding resource production)">
+                <axis1 name="technology">technology</axis1>
+                <axis2 name="Year">emissions</axis2>
+                <xPath buildList="true" dataName="emissions" group="false" sumAll="false">*[@type = 'sector' ]/*[@type='subsector']/*[@type='technology']//
+            CO2/emissions/node()</xPath>
+                <comments />
+            </emissionsQueryBuilder>
+</aQuery>
+</queries>

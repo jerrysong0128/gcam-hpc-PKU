@@ -1,0 +1,7 @@
+Queries selected:
+ - industry final energy by tech and fuel
+ - iron and steel inputs by tech (energy and feedstocks)
+ - traded iron and steel
+ - regional iron and steel sources
+ - CO2 emissions by sector (excluding resource production)
+ - CO2 emissions by tech (excluding resource production)
