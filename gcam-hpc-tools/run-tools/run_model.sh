@@ -44,13 +44,11 @@ err=$?
 # make ./inter_query
 mkdir -p ./inter_query
 # Query the output file
-java -cp "$CLASSPATH" ModelInterface.InterfaceMain -b "../output/xmldb_queries/xmldb_batch_jerry.xml"
+java -cp "$CLASSPATH" ModelInterface.InterfaceMain -b "../output/xmldb_queries/xmldb_batch.xml"
 
 if [[ $err -gt 0 ]]; then
 	echo "Error code reported: $err"
 	echo $err > ${SCRATCHDIR}/errors/$2
-else
-    #cp gas.emk ${SCRATCHDIR}/output/gas_${2}.emk
 fi
 
 echo "Task $2 is done!"

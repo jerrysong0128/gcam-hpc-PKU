@@ -71,6 +71,7 @@ rsync -ai --recursive $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
 
 echo "Syncing output queries to $SCRATCHDIR..."
 rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/user_batch_queries/ ${SCRATCHDIR}/output/xmldb_queries/
+rsync -ai $OUT_OPTIONS ${GCAMDIR}/output/queries ${SCRATCHDIR}/output/
 
 # --------------------------------------------------------------------------------------------
 # 2. Generate the required permutations of the base configuration file

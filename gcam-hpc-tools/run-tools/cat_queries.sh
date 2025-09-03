@@ -16,10 +16,10 @@ for exedir in "${SCRATCHDIR}/exe_"*; do
     done
 done
 echo "Concatenating all CSVs to create Final.csv in ${OUTPUTDIR}..."
-cat "${OUTPUTDIR}"/out_query_*/*.csv > "${OUTPUTDIR}/Final.csv"
+cat "${OUTPUTDIR}"/out_query_*/*.csv > "${OUTPUTDIR}/Final_${SLURM_JOB_ID}.csv"
 
 echo "Cleaning up: deleting all ${SCRATCHDIR}/exe_* directories..."
 rm -rf "${SCRATCHDIR}/exe_"*
 
 echo "Cleaning up: deleting all files in ${TOOLDIR}/configuration-sets/temp ..."
-rm -rf "${TOOLDIR}/configuration-sets/temp"/*
+find "${TOOLDIR}/configuration-sets/temp" -type f ! -name 'v82_default_scenario_components.xml' -delete
