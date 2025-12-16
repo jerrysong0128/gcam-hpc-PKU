@@ -26,13 +26,32 @@ ERROR_ILLEGAL_PERMNUM=-3
 SCENARIO_SECTION_PATTERN=/ScenarioComponents
 
 PERL_PARSER=./gcam-hpc-tools/run-tools/batch_parser.pl
+SPA_MAP_FILE=./gcam-hpc-tools/run-tools/SPA_mapping/SPA_mapping.csv	 # CSV file mapping SPA codes to policy target files
 
+declare -A SPA_MAP			# associative array mapping SPA codes to policy target files
 declare -a grouplist		# the file groupings read in from batch file
 declare -a groupsizelist	# group sizes, used to index into filelist
 declare -a filelist			# single array holding all the possible values in sequence
 declare -a currentpoints
 declare -a groupstartpoints
 declare -a filename
+
+load_spa_map() {
+#   Load SPA -> policy target mapping from CSV (skips comments and header)
+	local csv_file="$1"
+	if [[ ! -f "$csv_file" ]]; then
+		echo "Warning: SPA mapping file not found: $csv_file" >&2
+		return
+	fi
+	while IFS=, read -r spa_code spa_file; do
+		[[ -z "$spa_code" ]] && continue
+		[[ $spa_code == \#* ]] && continue
+		[[ $spa_code == "SPAs" ]] && continue
+		spa_code=$(echo "$spa_code" | tr -d ' \t\r\n')
+		spa_file=$(echo "$spa_file" | tr -d ' \t\r\n')
+		[[ -n "$spa_code" ]] && SPA_MAP["$spa_code"]="$spa_file"
+	done < "$csv_file"
+}
 
 do_permutations()
 #	Generate permutations and write out appropriately-numbered template files
@@ -47,6 +66,14 @@ do_permutations()
 	perm_number=0
     target_file_index=-1
 	while [[ $notdone -eq 1 ]]; do		# main loop
+
+		scenario_name=""
+		i=0
+		while [ $i -lt $groups ]; do
+			let "index = ${groupstartpoints[i]} + ${currentpoints[i]}"
+			scenario_name+="${filename[index]}"
+			let "i += 1"
+		done
 
 {	# output redirection
 
@@ -73,14 +100,7 @@ do_permutations()
 		echo "</ScenarioComponents>"	# close this section
 
 		# now put the name of the scenario in
-		echo -n "<Strings> <Value name=\"scenarioName\">"
-		i=0
-		while [ $i -lt $groups ]; do
-			let "index = ${groupstartpoints[i]} + ${currentpoints[i]}"
-			echo -n ${filename[index]}
-			let "i += 1"
-		done
-		echo "</Value> </Strings>"
+		echo -n "<Strings> <Value name=\"scenarioName\">${scenario_name}</Value> </Strings>"
 
 		# finally finish out the template file
 		tail -n $template_tail $template_file
@@ -88,20 +108,35 @@ do_permutations()
 } > ${template_file_root}_${perm_number}_temp.$template_file_extension    # end of output redirect
 
 		# ---- specific to NERSC: change outFile.csv and batch-csv-output.csv refs
-	
-        if [ $target_file_index -eq -1 ] || [ -z "${filelist[target_file_index]}" ]; then
-            cat ${template_file_root}_${perm_number}_temp.$template_file_extension | \
-            sed "s/outFile.csv/outFile_${perm_number}.csv/g" | \
-            sed "s/batchout.csv/batchout_${perm_number}.csv/g"  \
-                > ${template_file_root}_${perm_number}.$template_file_extension
-         else
-            cat ${template_file_root}_${perm_number}_temp.$template_file_extension | \
-            sed "s/outFile.csv/outFile_${perm_number}.csv/g" | \
-            sed "s/batchout.csv/batchout_${perm_number}.csv/g" |  \
-            sed "s,Value name=\"policy-target-file\">.*</Value>,Value name=\"policy-target-file\">${filelist[target_file_index]}</Value>,g" | \
-            sed "s/Value name=\"find-path\">.<\/Value>/Value name=\"find-path\">1<\/Value>/g"  \
-                > ${template_file_root}_${perm_number}.$template_file_extension
-         fi
+
+		policy_target_from_map=""
+		if [[ $scenario_name =~ (SPA[0-9]{3}) ]]; then
+			spa_code="${BASH_REMATCH[1]}"
+			if [[ -n ${SPA_MAP[$spa_code]} ]]; then
+				policy_target_from_map="${SPA_MAP[$spa_code]}"
+			fi
+		fi
+
+		if [[ -n "$policy_target_from_map" ]]; then
+			cat ${template_file_root}_${perm_number}_temp.$template_file_extension | \
+			sed "s/outFile.csv/outFile_${perm_number}.csv/g" | \
+			sed "s/batchout.csv/batchout_${perm_number}.csv/g" |  \
+			sed "s,Value name=\"policy-target-file\">.*</Value>,Value name=\"policy-target-file\">${policy_target_from_map}</Value>,g" | \
+			sed "s/Value name=\"find-path\">.<\/Value>/Value name=\"find-path\">1<\/Value>/g"  \
+				> ${template_file_root}_${perm_number}.$template_file_extension
+		elif [ $target_file_index -eq -1 ] || [ -z "${filelist[target_file_index]}" ]; then
+			cat ${template_file_root}_${perm_number}_temp.$template_file_extension | \
+			sed "s/outFile.csv/outFile_${perm_number}.csv/g" | \
+			sed "s/batchout.csv/batchout_${perm_number}.csv/g"  \
+				> ${template_file_root}_${perm_number}.$template_file_extension
+		 else
+			cat ${template_file_root}_${perm_number}_temp.$template_file_extension | \
+			sed "s/outFile.csv/outFile_${perm_number}.csv/g" | \
+			sed "s/batchout.csv/batchout_${perm_number}.csv/g" |  \
+			sed "s,Value name=\"policy-target-file\">.*</Value>,Value name=\"policy-target-file\">${filelist[target_file_index]}</Value>,g" | \
+			sed "s/Value name=\"find-path\">.<\/Value>/Value name=\"find-path\">1<\/Value>/g"  \
+				> ${template_file_root}_${perm_number}.$template_file_extension
+		 fi
 		rm ${template_file_root}_${perm_number}_temp.$template_file_extension
         let "target_file_index = -1"
 		
@@ -151,6 +186,8 @@ else
 fi
 
 template_file=$1
+
+load_spa_map "$SPA_MAP_FILE"
 
 # Robust filename parsing
 template_file_basename=$(basename -- "$template_file")

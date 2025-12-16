@@ -65,7 +65,7 @@ echo "Batch file: $(basename "$BATCH_FILE")"
 #INPUT_OPTIONS="--include=*.xml --include=*.ini --include=climate/*.csv --include=Hist_to_2008_Annual.csv --include=*.jar --exclude=.svn --exclude=*.*" 
 INPUT_OPTIONS="--include=*.xml --include=*/ --exclude=*"
 OUT_OPTIONS="--include=*.xml --exclude=*"
-echo "Syncing GCAM files into scratch directory..."
+echo "Syncing GCAM input files into scratch directory..."
 echo "Syncing input directory to $SCRATCHDIR..."
 rsync -ai --recursive $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
 

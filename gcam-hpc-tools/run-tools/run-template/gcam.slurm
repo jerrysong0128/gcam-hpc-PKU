@@ -4,8 +4,8 @@
 #SBATCH --output=gcam-runjob-log/gcamRunjob.%j.out
 #SBATCH --partition=C064M0256G   # Use the valid partition on your cluster (MUST BE UPPERCASE) sacctmgr show ass user=`whoami` format=part | uniq
 #SBATCH --job-name=gcamRun
-#SBATCH --nodes=5
-#SBATCH --ntasks=5
+#SBATCH --nodes=10
+#SBATCH --ntasks=10
 #SBATCH --cpus-per-task=8
 #SBATCH --time=2-00:00:00
 
@@ -20,4 +20,9 @@ srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Des
 srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components 2 &
 srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components 3 &
 srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components 4 &
+srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components 5 &
+srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components 6 &
+srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components 7 &
+srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components 8 &
+srun -n 1 ./gcam-hpc-tools/run-tools/mpi_wrapper.exe /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components 9 &
 wait

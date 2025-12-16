@@ -21,5 +21,5 @@ Visit this [Wiki](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki)
 ```sh
 /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/master.sh \
     /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/temp/v82_default_scenario_components.xml \
-    /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/config/events/0828/reference_batch_SSP_MFA.xml
+    /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/configuration-sets/config/events/0910/batch_SSP_mfa_0910.xml
 ```

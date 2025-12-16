@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queries>
+<aQuery>
+                    <supplyDemandQuery title="iron and steel production share-weights by subsector">
+                        <axis1 name="subsector">subsector</axis1>
+                        <axis2 name="Year">share-weight</axis2>
+                        <xPath buildList="true" dataName="Price" group="false" sumAll="false">*[@type='sector' and (@name='iron and steel')]/
+               *[@type='subsector']/share-weight/text()</xPath>
+                        <comments/>
+                    </supplyDemandQuery>
+</aQuery>
+<aQuery>
+                    <supplyDemandQuery title="traded iron and steel share-weights by subsector">
+                        <axis1 name="subsector">subsector</axis1>
+                        <axis2 name="Year">share-weight</axis2>
+    					<xPath buildList="true" dataName="Price" group="false" sumAll="false">*[@type='sector' and contains(@name, 'traded iron and steel')]/
+               *[@type='subsector']/share-weight/text()</xPath>
+    					<comments/>
+					</supplyDemandQuery>
+</aQuery>
+<aQuery>
+                    <supplyDemandQuery title="regional iron and steel share-weights by subsector">
+                        <axis1 name="subsector">subsector</axis1>
+                        <axis2 name="Year">share-weight</axis2>
+        				<xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and contains(@name, 'regional iron and steel')]/
+               *[@type='subsector']/share-weight/text()</xPath>
+        				<comments/>
+    				</supplyDemandQuery>
+</aQuery>
+</queries>
