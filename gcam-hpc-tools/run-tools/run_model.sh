@@ -2,6 +2,8 @@
 
 # Compiler module is loaded once via the cluster profile (sourced by
 # gcam_workspace.setup); do not duplicate it here.
+module load gcc/12.2.0
+export LD_LIBRARY_PATH=/lustre/software/gcc/12.2.0/lib64:$LD_LIBRARY_PATH
 export CLASSPATH="$(find ${TOOLDIR}/build-tools/libs/jars -name "*.jar" | tr '\n' ':'):${GCAMDIR}/output/modelinterface/ModelInterface.jar"
 
 # Script expects two parameters: the configuration filename and the task number

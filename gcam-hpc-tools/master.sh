@@ -58,8 +58,7 @@ echo "Batch file: $(basename "$BATCH_FILE")"
 # --------------------------------------------------------------------------------------------
 
 
-#INPUT_OPTIONS="--include=*.xml --include=*.ini --include=climate/*.csv --include=Hist_to_2008_Annual.csv --include=*.jar --exclude=.svn --exclude=*.*" 
-INPUT_OPTIONS="--include=*.xml --include=*/ --exclude=*"
+INPUT_OPTIONS="--include=*.xml --include=*.ini --include=climate/*.csv --include=Hist_to_2008_Annual.csv --include=*.jar --exclude=.svn --exclude=*.*" 
 OUT_OPTIONS="--include=*.xml --exclude=*"
 echo "Syncing GCAM input files into scratch directory..."
 echo "Syncing input directory to $SCRATCHDIR..."
