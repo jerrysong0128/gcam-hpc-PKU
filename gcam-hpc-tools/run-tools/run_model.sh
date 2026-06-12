@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# 1. Clean up module environment
-module load gcc/12.2.0  # Must match build compiler exactly
-export CLASSPATH="$(find ${GCAM_HPC_WORKSPACE}/gcam-hpc-tools/build-tools/libs/jars -name "*.jar" | tr '\n' ':'):${GCAMDIR}/output/modelinterface/ModelInterface.jar"
+# Compiler module is loaded once via the cluster profile (sourced by
+# gcam_workspace.setup); do not duplicate it here.
+export CLASSPATH="$(find ${TOOLDIR}/build-tools/libs/jars -name "*.jar" | tr '\n' ':'):${GCAMDIR}/output/modelinterface/ModelInterface.jar"
 
 # Script expects two parameters: the configuration filename and the task number
 # Filename should be the base name, not including job number or extension

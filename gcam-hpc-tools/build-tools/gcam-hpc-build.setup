@@ -1,0 +1,12 @@
+# gcam-hpc-build.setup -- unified build env entry point.
+# Just delegates to gcam_workspace.setup so the build doc keeps the familiar
+# "source build-tools/gcam-hpc-build.setup; make gcam -j 16" flow while
+# everything stays centralized in one file.
+#
+# Usage:
+#     source build-tools/gcam-hpc-build.setup
+#     cd $GCAM_LIB && make clean && make gcam -j 16
+
+_GCAM_BUILD_SETUP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. "${_GCAM_BUILD_SETUP_DIR}/../gcam_workspace.setup"
+unset _GCAM_BUILD_SETUP_DIR

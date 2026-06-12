@@ -25,8 +25,8 @@ ERROR_ILLEGAL_PERMNUM=-3
 
 SCENARIO_SECTION_PATTERN=/ScenarioComponents
 
-PERL_PARSER=./gcam-hpc-tools/run-tools/batch_parser.pl
-SPA_MAP_FILE=./gcam-hpc-tools/run-tools/SPA_mapping/SPA_mapping.csv	 # CSV file mapping SPA codes to policy target files
+PERL_PARSER="${TOOLDIR:-./gcam-hpc-tools}/run-tools/batch_parser.pl"
+SPA_MAP_FILE="${TOOLDIR:-./gcam-hpc-tools}/run-tools/SPA_mapping/SPA_mapping.csv"	 # CSV file mapping SPA codes to policy target files
 
 declare -A SPA_MAP			# associative array mapping SPA codes to policy target files
 declare -a grouplist		# the file groupings read in from batch file

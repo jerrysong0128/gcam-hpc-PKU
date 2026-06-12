@@ -1,4 +1,72 @@
-#WEIMING-2
-export GCAM_HPC_WORKSPACE=/lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU
-#WEIMING-1
-#export GCAM_HPC_WORKSPACE=/gpfs/share/home/2501112459/Desktop/GCAM_workspace/gcam-hpc-PKU
+# gcam_workspace.setup
+# Single source of truth for the GCAM HPC workspace. Source it once, do not
+# re-export anything in downstream scripts.
+#
+# Usage:
+#     source /path/to/gcam-hpc-PKU/gcam-hpc-tools/gcam_workspace.setup
+#
+# GCAM source releases (download and extract under $GCAM_HPC_WORKSPACE):
+#   gcam-core   https://github.com/JGCRI/gcam-core/releases
+#   gcam-china  https://github.com/umd-cgs/gcam-china/releases
+
+# ----- Edit these for your machine ------------------------------------------
+
+# Absolute path to your gcam-hpc-PKU checkout.
+export GCAM_HPC_WORKSPACE="${GCAM_HPC_WORKSPACE:-/lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU}"
+
+# Cluster profile name (file under build-tools/profiles/, without .profile).
+# Built-ins: wm1, wm2, custom. Add your own profile to support a new site.
+export GCAM_HPC_CLUSTER="${GCAM_HPC_CLUSTER:-wm2}"
+
+# HPC username for squeue (defaults to current shell user).
+export GCAM_HPC_USER="${GCAM_HPC_USER:-$(whoami)}"
+
+# ----- Derived (do not edit below) ------------------------------------------
+
+if [ -z "${GCAM_HPC_WORKSPACE}" ] || [ ! -d "${GCAM_HPC_WORKSPACE}" ]; then
+    echo "ERROR: GCAM_HPC_WORKSPACE not set or not a directory: '${GCAM_HPC_WORKSPACE}'" >&2
+    return 1 2>/dev/null || exit 1
+fi
+
+export TOOLDIR="${GCAM_HPC_WORKSPACE}/gcam-hpc-tools"
+export SCRATCHDIR="${GCAM_HPC_WORKSPACE}/gcam-scratch"
+
+# Auto-detect GCAM variant by globbing for any gcam-*/cvs/objects/build/linux
+# directory under the workspace. Handles version-suffixed release directory
+# names (e.g. gcam-core-v8.2, gcam-china-7.0). To override (or to disambiguate
+# when multiple variants are present), export GCAMDIR before sourcing.
+if [ -z "${GCAMDIR:-}" ]; then
+    _gcam_matches=( "${GCAM_HPC_WORKSPACE}"/gcam-*/cvs/objects/build/linux )
+    if [ ! -e "${_gcam_matches[0]}" ]; then
+        echo "ERROR: no gcam-*/cvs/objects/build/linux found under ${GCAM_HPC_WORKSPACE}" >&2
+        echo "       Drop a gcam-core or gcam-china release into the workspace, or set GCAMDIR." >&2
+        unset _gcam_matches
+        return 1 2>/dev/null || exit 1
+    elif [ "${#_gcam_matches[@]}" -gt 1 ]; then
+        echo "ERROR: multiple GCAM variants detected; export GCAMDIR explicitly to choose:" >&2
+        for _m in "${_gcam_matches[@]}"; do
+            echo "         ${_m%/cvs/objects/build/linux}" >&2
+        done
+        unset _gcam_matches _m
+        return 1 2>/dev/null || exit 1
+    fi
+    export GCAMDIR="${_gcam_matches[0]%/cvs/objects/build/linux}"
+    unset _gcam_matches
+fi
+
+export GCAM_INCLUDE="${GCAMDIR}/cvs/objects"
+export GCAM_LIB="${GCAMDIR}/cvs/objects/build/linux"
+
+# Load cluster-specific module loads, system library paths, and slurm template.
+_gcam_profile="${TOOLDIR}/build-tools/profiles/${GCAM_HPC_CLUSTER}.profile"
+if [ ! -r "${_gcam_profile}" ]; then
+    echo "ERROR: cluster profile not found: ${_gcam_profile}" >&2
+    echo "       Available profiles:" >&2
+    for _p in "${TOOLDIR}/build-tools/profiles/"*.profile; do
+        [ -e "${_p}" ] && echo "         $(basename "${_p}" .profile)" >&2
+    done
+    unset _gcam_profile _p
+    return 1 2>/dev/null || exit 1
+fi
+. "${_gcam_profile}"
+unset _gcam_profile

@@ -9,22 +9,18 @@
 # --------------------------------------------------------------------------------------------
 
 
-source /lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU/gcam-hpc-tools/gcam_workspace.setup
-
-cd ${GCAM_HPC_WORKSPACE}
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "${SCRIPT_DIR}/gcam_workspace.setup" || exit 1
 
 if [ -z "$GCAM_HPC_WORKSPACE" ]; then
-    echo "NOTICE: Please set GCAM_HPC_WORKSPACE to the absolute path of your gcam-hpc-PKU repo"
-    echo "Example: export GCAM_HPC_WORKSPACE=/lustre/home/2501112459/Desktop/GCAM_Workspace/gcam-hpc-PKU"
+    echo "NOTICE: Please set GCAM_HPC_WORKSPACE in gcam_workspace.setup to the absolute path of your gcam-hpc-PKU repo"
     exit 1
 fi
 
-export GCAMDIR="${GCAM_HPC_WORKSPACE}/gcam-core"
-export SCRATCHDIR="${GCAM_HPC_WORKSPACE}/gcam-scratch"
-export TOOLDIR="${GCAM_HPC_WORKSPACE}/gcam-hpc-tools"
+cd "${GCAM_HPC_WORKSPACE}"
 
 RUN_SCRIPT="${TOOLDIR}/run-tools/run_model.sh"
-PBS_TEMPLATEFILE="${TOOLDIR}/run-tools/run-template/gcam_template_WM2.slurm"
+PBS_TEMPLATEFILE="${SLURM_TEMPLATE}"
 PBS_BATCHFILE="${TOOLDIR}/run-tools/run-template/gcam.slurm"
 
 timestamp=$(date +"%Y%m%d_%H%M%S")
