@@ -28,7 +28,9 @@
 # libs directory
 libs
 archive
-gcam-core
+# GCAM source releases fetched via gcam-hpc-tools/fetch_gcam_source.sh
+gcam-core*/
+gcam-china*/
 
 # Executables
 *.out

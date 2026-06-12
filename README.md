@@ -12,11 +12,22 @@ Visit this [Wiki](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki)
 ## Quickstart
 
 1. Clone this repo somewhere on the cluster, e.g. `~/GCAM_Workspace/gcam-hpc-PKU`.
-2. Drop a GCAM source release under that workspace:
+2. Fetch a GCAM source release with the bundled script (downloads the tagged
+   tarball from GitHub and extracts it next to `gcam-hpc-tools/`):
+   ```bash
+   # gcam-core
+   ./gcam-hpc-tools/fetch_gcam_source.sh --variant core  --version gcam-v8.2
+
+   # gcam-china
+   ./gcam-hpc-tools/fetch_gcam_source.sh --variant china --version gcam-china-v8
+   ```
+   Pick any release tag from the upstream repos:
    - gcam-core: <https://github.com/JGCRI/gcam-core/releases>
    - gcam-china: <https://github.com/umd-cgs/gcam-china/releases>
 
-   Any directory matching `gcam-*/cvs/objects/build/linux` is auto-detected (e.g. `gcam-core-v8.2/`, `gcam-china-7.0/`).
+   The extracted directory matches `gcam-*/cvs/objects/build/linux` and is
+   auto-detected (e.g. `gcam-core-v8.2/`, `gcam-china-v8/`). If you prefer to
+   download manually, just unpack the archive into the workspace yourself.
 3. Edit two lines in `gcam-hpc-tools/gcam_workspace.setup`:
    ```bash
    export GCAM_HPC_WORKSPACE=/absolute/path/to/gcam-hpc-PKU
