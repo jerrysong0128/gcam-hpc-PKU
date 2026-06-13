@@ -65,8 +65,15 @@ echo "Syncing input directory to $SCRATCHDIR..."
 rsync -ai --recursive $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
 
 echo "Syncing output queries to $SCRATCHDIR..."
+mkdir -p "${SCRATCHDIR}/output/xmldb_queries" "${SCRATCHDIR}/output/queries"
 rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/user_batch_queries/ ${SCRATCHDIR}/output/xmldb_queries/
-rsync -ai $OUT_OPTIONS ${GCAMDIR}/output/queries ${SCRATCHDIR}/output/
+rsync -ai $OUT_OPTIONS ${GCAMDIR}/output/queries/ ${SCRATCHDIR}/output/queries/
+
+GCAM_CHINA_QUERY_DIR="${GCAM_HPC_WORKSPACE}/gcam-china/output/queries"
+if [ -d "${GCAM_CHINA_QUERY_DIR}" ] && [ "${GCAM_CHINA_QUERY_DIR}" != "${GCAMDIR}/output/queries" ]; then
+    echo "Syncing gcam-china output queries to $SCRATCHDIR..."
+    rsync -ai $OUT_OPTIONS ${GCAM_CHINA_QUERY_DIR}/ ${SCRATCHDIR}/output/queries/
+fi
 
 # --------------------------------------------------------------------------------------------
 # 2. Generate the required permutations of the base configuration file
