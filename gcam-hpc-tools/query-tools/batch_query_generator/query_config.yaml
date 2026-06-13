@@ -8,7 +8,7 @@
 # Use All to select every available region or query.
 
 selected_regions:
-  - China
+  - All
 
 selected_queries:
   - iron and steel production by region
