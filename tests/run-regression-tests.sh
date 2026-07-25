@@ -122,6 +122,45 @@ assert (batch_dir / Path(query_file).name).is_file()
 ' "${batch_dir}"
 }
 
+check_run_pipeline_integration() {
+    local workspace="${TEST_TMP}/pipeline-workspace"
+    local test_tools="${workspace}/gcam-hpc-tools"
+    local test_bin="${workspace}/test-bin"
+
+    # Assemble only the files needed to exercise orchestration through Slurm
+    # generation; the real 400+ MB dependency bundle is intentionally omitted.
+    mkdir -p "${test_tools}/build-tools" "${test_bin}"
+    cp "${TOOLS_DIR}/run-pipeline.sh" "${TOOLS_DIR}/environment.sh" "${test_tools}/"
+    cp -R "${TOOLS_DIR}/run-tools" "${TOOLS_DIR}/configuration-sets" "${test_tools}/"
+    cp -R "${TOOLS_DIR}/build-tools/profiles" "${test_tools}/build-tools/"
+    mkdir -p "${test_tools}/query-tools"
+    cp -R "${TOOLS_DIR}/query-tools/batch-queries" "${test_tools}/query-tools/"
+
+    mkdir -p \
+        "${workspace}/gcam-core/cvs/objects/build/linux" \
+        "${workspace}/gcam-core/input" \
+        "${workspace}/gcam-core/output/queries" \
+        "${workspace}/gcam-core/exe" \
+        "${workspace}/gcam-scratch"
+
+    # Cluster profile files call the environment-modules command. A no-op stub
+    # is sufficient because this integration test never launches GCAM.
+    printf '#!/usr/bin/env bash\nexit 0\n' > "${test_bin}/module"
+    chmod +x "${test_bin}/module"
+
+    printf 'y\ny\n2\nn\n' |
+        PATH="${test_bin}:${PATH}" \
+        GCAM_HPC_WORKSPACE="${workspace}" \
+        GCAM_HPC_CLUSTER=wm2 \
+        bash "${test_tools}/run-pipeline.sh"
+
+    local generated="${test_tools}/run-tools/slurm-templates/generated-run.slurm"
+    test -f "${generated}"
+    test "$(grep -c 'run-task-wrapper.exe' "${generated}")" = "2"
+    grep -q 'run-tools/run-task-wrapper.exe' "${generated}"
+    test -f "${workspace}/gcam-scratch/output/xmldb_queries/modelinterface-batch.xml"
+}
+
 check_pipeline_references() {
     grep -q 'run-tools/run-scenario.sh' "${TOOLS_DIR}/run-tools/run-task-wrapper.cpp"
     grep -q 'run-tools/generate-scenarios.sh' "${TOOLS_DIR}/run-pipeline.sh"
@@ -137,6 +176,7 @@ check_perl_syntax
 check_scenario_generation
 check_query_generation
 check_modelinterface_batch
+check_run_pipeline_integration
 check_pipeline_references
 
 printf 'All GCAM-HPC regression checks passed.\n'
