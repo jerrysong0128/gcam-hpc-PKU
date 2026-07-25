@@ -63,7 +63,7 @@ check_scenario_generation() {
 check_query_generation() {
     local config="${TEST_TMP}/query-test.yaml"
     local output="${TEST_TMP}/query-output.xml"
-    local query_catalog="${TOOLS_DIR}/query-tools/batch_query_generator/queries_xml/Main_queries.xml"
+    local query_catalog="${TOOLS_DIR}/query-tools/batch_query_generator/query-definitions/main-queries.xml"
 
     {
         printf 'selected_regions:\n  - China\n'
@@ -73,7 +73,7 @@ check_query_generation() {
         printf 'available_regions:\n  - China\n'
     } > "${config}"
 
-    python3 "${TOOLS_DIR}/query-tools/batch_query_generator/batch_query_generator.py" "${config}"
+    python3 "${TOOLS_DIR}/query-tools/batch_query_generator/build_queries.py" "${config}"
     python3 -c '
 import sys
 import xml.etree.ElementTree as ET
@@ -83,14 +83,32 @@ assert root.tag == "queries"
 assert len(root.findall("aQuery")) == 1
 assert root.find("aQuery/region").get("name") == "China"
 ' "${output}"
+
+    # The former CLI name remains a supported compatibility entry point.
+    python3 "${TOOLS_DIR}/query-tools/batch_query_generator/batch_query_generator.py" "${config}" >/dev/null
+}
+
+check_modelinterface_batch() {
+    local batch_dir="${TOOLS_DIR}/query-tools/batch-queries"
+    python3 -c '
+from pathlib import Path
+import sys
+import xml.etree.ElementTree as ET
+
+batch_dir = Path(sys.argv[1])
+root = ET.parse(batch_dir / "modelinterface-batch.xml").getroot()
+query_file = root.findtext(".//queryFile")
+assert query_file
+assert (batch_dir / Path(query_file).name).is_file()
+' "${batch_dir}"
 }
 
 check_pipeline_references() {
     grep -q 'run-tools/run-scenario.sh' "${TOOLS_DIR}/run-tools/run-task-wrapper.cpp"
     grep -q 'run-tools/generate-scenarios.sh' "${TOOLS_DIR}/run-pipeline.sh"
     grep -q 'run-tools/merge-query-results.sh' "${TOOLS_DIR}/run-pipeline.sh"
-    grep -q 'user_batch_queries' "${TOOLS_DIR}/run-pipeline.sh"
-    grep -q 'xmldb_batch.xml' "${TOOLS_DIR}/run-tools/run-scenario.sh"
+    grep -q 'batch-queries' "${TOOLS_DIR}/run-pipeline.sh"
+    grep -q 'modelinterface-batch.xml' "${TOOLS_DIR}/run-tools/run-scenario.sh"
 }
 
 check_shell_syntax
@@ -98,6 +116,7 @@ check_python_syntax
 check_perl_syntax
 check_scenario_generation
 check_query_generation
+check_modelinterface_batch
 check_pipeline_references
 
 printf 'All GCAM-HPC regression checks passed.\n'

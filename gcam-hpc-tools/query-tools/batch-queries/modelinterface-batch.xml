@@ -2,8 +2,8 @@
     
     <class name="ModelInterface.ModelGUI2.DbViewer">
         <command name="XMLDB Batch File">
-            <!-- <queryFile>../output/xmldb_queries/output_queries_all.xml</queryFile> -->
-            <queryFile>../output/xmldb_queries/output_queries_20251017_140554.xml</queryFile>
+            <!-- <queryFile>../output/xmldb_queries/queries-all.xml</queryFile> -->
+            <queryFile>../output/xmldb_queries/queries-20251017-140554.xml</queryFile>
 
             <outFile>./inter_query/queryout_under_this_scenario.csv</outFile>
             

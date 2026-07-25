@@ -66,7 +66,7 @@ rsync -ai --recursive $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
 
 echo "Syncing output queries to $SCRATCHDIR..."
 mkdir -p "${SCRATCHDIR}/output/xmldb_queries" "${SCRATCHDIR}/output/queries"
-rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/user_batch_queries/ ${SCRATCHDIR}/output/xmldb_queries/
+rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/batch-queries/ ${SCRATCHDIR}/output/xmldb_queries/
 rsync -ai $OUT_OPTIONS ${GCAMDIR}/output/queries/ ${SCRATCHDIR}/output/queries/
 
 GCAM_CHINA_QUERY_DIR="${GCAM_HPC_WORKSPACE}/gcam-china/output/queries"

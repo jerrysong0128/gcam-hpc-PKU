@@ -70,4 +70,18 @@ Run with no arguments to use the bundled defaults.
 
 ## Step QUERY
 
-After the slurm job finishes, the per-task CSVs are concatenated into `Final_<jobid>.csv` under `$SCRATCHDIR/output/run_<timestamp>/` by `merge-query-results.sh`.
+Configure QUERY before starting `run-pipeline.sh`:
+
+```sh
+cd "$TOOLDIR/query-tools/batch_query_generator"
+python3 build_queries.py query-config.yaml
+```
+
+The builder reads query definitions from `query-definitions/` and writes a
+timestamped `queries-YYYYmmdd-HHMMSS.xml` file under `batch-queries/`. Set the
+`<queryFile>` entry in `batch-queries/modelinterface-batch.xml` to that file.
+
+During RUN, every scenario executes the same synchronized QUERY configuration.
+After the Slurm run job returns successfully, `merge-query-results.sh` collects
+the per-scenario CSV files and concatenates them into `Final_<jobid>.csv` under
+`$SCRATCHDIR/output/run_<timestamp>/`.

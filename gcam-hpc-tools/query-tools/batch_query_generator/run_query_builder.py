@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Backward-compatible wrapper for batch_query_generator.py."""
+"""Backward-compatible wrapper for build_queries.py."""
 
-from batch_query_generator import main
+from build_queries import main
 
 
 if __name__ == "__main__":
