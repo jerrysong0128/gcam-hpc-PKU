@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram name="RUN + QUERY architecture">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="2" value="GCAM-HPC orchestration: RUN + QUERY" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=28;fontStyle=1;fontColor=#1F2D3D;" vertex="1" parent="1">
+          <mxGeometry x="60" y="30" width="950" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="Configure QUERY before starting master.sh; each scenario uses the same synced query set, then all CSV outputs are merged." style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=14;fontColor=#52606D;" vertex="1" parent="1">
+          <mxGeometry x="60" y="85" width="1180" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="PRE-RUN CONFIGURATION" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#2A788E;" vertex="1" parent="1">
+          <mxGeometry x="60" y="125" width="240" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="" style="rounded=1;arcSize=8;fillColor=#F6F8FA;strokeColor=#D8DEE4;container=1;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="150" width="1500" height="155" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="6" value="&lt;b&gt;Scenario template&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;*_scenario_components.xml&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Base configuration and component slots&lt;/span&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#8EA8B8;strokeWidth=1.4;fontFamily=Helvetica;fontSize=15;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=14;" vertex="1" parent="1">
+          <mxGeometry x="85" y="185" width="270" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="&lt;b&gt;Scenario batch&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;*_batch_*.xml&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Choices expanded into scenario permutations&lt;/span&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#8EA8B8;strokeWidth=1.4;fontFamily=Helvetica;fontSize=15;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=14;" vertex="1" parent="1">
+          <mxGeometry x="385" y="185" width="270" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="&lt;b&gt;Query definitions&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;output_queries_###_###.xml&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Query items and selected regions&lt;/span&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EAF4F6;strokeColor=#2A788E;strokeWidth=1.6;fontFamily=Helvetica;fontSize=15;fontColor=#174A56;align=left;verticalAlign=middle;spacingLeft=14;" vertex="1" parent="1">
+          <mxGeometry x="735" y="185" width="330" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="&lt;b&gt;ModelInterface batch control&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;xmldb_batch.xml&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Points to query definitions, XMLDB and CSV output&lt;/span&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EAF4F6;strokeColor=#2A788E;strokeWidth=1.6;fontFamily=Helvetica;fontSize=15;fontColor=#174A56;align=left;verticalAlign=middle;spacingLeft=14;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="185" width="410" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="10" value="ORCHESTRATION" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#355C7D;" vertex="1" parent="1">
+          <mxGeometry x="60" y="325" width="200" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" value="&lt;b&gt;master.sh&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#506176&quot;&gt;Create run directory · sync inputs and query XML · expand scenarios · generate SLURM job · submit RUN and dependent merge job&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#E8EEF5;strokeColor=#355C7D;strokeWidth=2;fontFamily=Helvetica;fontSize=20;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=18;" vertex="1" parent="1">
+          <mxGeometry x="50" y="350" width="1500" height="95" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="12" value="&lt;b&gt;1  Sync to scratch&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;rsync → gcam-scratch/&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;GCAM inputs + user_batch_queries + shipped queries&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#91A4B7;strokeWidth=1.3;fontFamily=Helvetica;fontSize=14;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="475" width="265" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="&lt;b&gt;2  Expand scenarios&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;permutator.sh&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Calls batch_parser.pl; writes one *_N.xml per scenario&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#91A4B7;strokeWidth=1.3;fontFamily=Helvetica;fontSize=14;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="365" y="475" width="265" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" value="&lt;b&gt;3  Generate SLURM job&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;gcam.slurm&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Adds one srun + mpi_wrapper.exe command per task&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#91A4B7;strokeWidth=1.3;fontFamily=Helvetica;fontSize=14;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="660" y="475" width="265" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" value="&lt;b&gt;4  Submit RUN&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;sbatch gcam.slurm&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Parallel scenario tasks on the cluster&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#91A4B7;strokeWidth=1.3;fontFamily=Helvetica;fontSize=14;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="955" y="475" width="265" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="&lt;b&gt;5  Schedule merge&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;sbatch --dependency=afterok&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Starts cat_queries.sh when gcam.slurm returns success*&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#91A4B7;strokeWidth=1.3;fontFamily=Helvetica;fontSize=14;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="475" width="265" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="17" value="PARALLEL SCENARIO TASKS" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#C96A2B;" vertex="1" parent="1">
+          <mxGeometry x="60" y="600" width="250" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="&lt;b&gt;Scenario task 0 … num_tasks−1&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;mpi_wrapper.exe → run_model.sh&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Creates isolated exe_N/ · runs gcam.exe with *_N.xml · writes output_N.txt&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF1E8;strokeColor=#C96A2B;strokeWidth=1.8;fontFamily=Helvetica;fontSize=16;fontColor=#7A3512;align=left;verticalAlign=middle;spacingLeft=16;" vertex="1" parent="1">
+          <mxGeometry x="50" y="630" width="620" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" value="&lt;b&gt;Model run&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;gcam.exe -C*_N.xml&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Produces XMLDB at exe_N/db/database_basexdb&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF8F2;strokeColor=#D99254;strokeWidth=1.3;fontFamily=Helvetica;fontSize=14;fontColor=#7A3512;align=left;verticalAlign=middle;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="630" width="300" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="20" value="&lt;b&gt;Per-scenario QUERY&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;ModelInterface.InterfaceMain&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Runs after gcam.exe returns (unconditionally); writes inter_query/*.csv&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4F6;strokeColor=#2A788E;strokeWidth=1.8;fontFamily=Helvetica;fontSize=14;fontColor=#174A56;align=left;verticalAlign=middle;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="630" width="485" height="105" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="21" value="AGGREGATION" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#5F6B7A;" vertex="1" parent="1">
+          <mxGeometry x="60" y="765" width="180" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="22" value="&lt;b&gt;Collect and merge query results&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;cat_queries.sh&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#667085&quot;&gt;Copies exe_N/inter_query/*.csv → out_query_N/; raw-concatenates all CSVs&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F3F5F7;strokeColor=#667085;strokeWidth=1.5;fontFamily=Helvetica;fontSize=14;fontColor=#25364D;align=left;verticalAlign=middle;spacingLeft=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="795" width="900" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="23" value="&lt;b&gt;Final consolidated output&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-family:Menlo;font-size:11px;color:#667085&quot;&gt;run_YYYYmmdd_HHMMSS/Final_&amp;lt;merge-jobid&amp;gt;.csv&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;color:#667085&quot;&gt;*Current scripts do not strictly propagate GCAM/Java failures to Slurm.&lt;/span&gt;" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EEF4ED;strokeColor=#5B8C5A;strokeWidth=1.8;fontFamily=Helvetica;fontSize=15;fontColor=#315331;align=left;verticalAlign=middle;spacingLeft=14;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="795" width="515" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8091A5;strokeWidth=1.4;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.15;entryY=0;" edge="1" parent="1" source="6" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8091A5;strokeWidth=1.4;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.35;entryY=0;" edge="1" parent="1" source="7" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2A788E;strokeWidth=1.5;endArrow=block;endFill=1;fontFamily=Helvetica;fontSize=10;fontColor=#2A788E;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.65;entryY=0;" edge="1" parent="1" source="8" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2A788E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.85;entryY=0;" edge="1" parent="1" source="9" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8796A8;strokeWidth=1.5;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="12" target="13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8796A8;strokeWidth=1.5;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="13" target="14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8796A8;strokeWidth=1.5;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="14" target="15">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="31" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8796A8;strokeWidth=1.5;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="15" target="16">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="32" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C96A2B;strokeWidth=1.7;endArrow=block;endFill=1;fontFamily=Helvetica;fontSize=10;fontColor=#A95424;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="15" target="18">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="33" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C96A2B;strokeWidth=1.7;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="18" target="19">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="34" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2A788E;strokeWidth=1.8;endArrow=block;endFill=1;fontFamily=Helvetica;fontSize=10;fontColor=#2A788E;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="19" target="20">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="35" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#667085;strokeWidth=1.5;dashed=1;dashPattern=6 4;endArrow=block;endFill=1;fontFamily=Helvetica;fontSize=10;fontColor=#667085;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.9;entryY=0;" edge="1" parent="1" source="16" target="22">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="590"/>
+              <mxPoint x="1530" y="770"/>
+              <mxPoint x="860" y="770"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="36" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2A788E;strokeWidth=1.6;endArrow=block;endFill=1;fontFamily=Helvetica;fontSize=10;fontColor=#2A788E;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.65;entryY=0;" edge="1" parent="1" source="20" target="22">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="37" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5B8C5A;strokeWidth=1.8;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="22" target="23">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
