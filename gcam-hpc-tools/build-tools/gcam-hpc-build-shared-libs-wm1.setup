@@ -6,7 +6,13 @@
 # make gcam -j 16
 
 # === Set GCAM_HPC_PKU_HOME ===
-export GCAM_HPC_PKU_HOME=<absolute path to your gcam-hpc-PKU repo>
+# Set this before sourcing the file. Keeping the placeholder outside shell
+# syntax avoids the invalid redirection-like "<absolute path ...>" assignment.
+if [ -z "${GCAM_HPC_PKU_HOME:-}" ]; then
+    echo "NOTICE: Set GCAM_HPC_PKU_HOME to the absolute path of gcam-hpc-PKU."
+    echo "Example: export GCAM_HPC_PKU_HOME=/path/to/gcam-hpc-PKU"
+    return 1 2>/dev/null || exit 1
+fi
 
 # === GCAM Paths ===
 export GCAM_INCLUDE=$GCAM_HPC_PKU_HOME/gcam-core/cvs/objects
