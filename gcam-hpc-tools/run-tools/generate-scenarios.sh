@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 #
+# Purpose: Expand a scenario-component template and batch file into numbered
+# GCAM configuration XML files.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 #-------------------------------------------------------------------------
 # generate-scenarios.sh
 #

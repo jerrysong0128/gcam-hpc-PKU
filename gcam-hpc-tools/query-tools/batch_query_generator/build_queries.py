@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Build a GCAM batch query XML from query-config.yaml.
+"""Purpose: Build a GCAM batch query XML from query-config.yaml.
+
+Author: Jingyang Song, Peking University; Jul 2026;
 
 Usage:
     python build_queries.py query-config.yaml

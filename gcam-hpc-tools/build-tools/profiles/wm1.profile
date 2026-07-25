@@ -1,3 +1,6 @@
+# Purpose: Define compiler, library, Java, and Slurm paths for WEIMING-1.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 # wm1.profile -- WEIMING-1 cluster
 # Sourced by environment.sh. Do not source directly.
 # Uses PKU HPC system-installed software (boost/java/tbb/gcc); these absolute

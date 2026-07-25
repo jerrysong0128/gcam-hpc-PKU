@@ -1,5 +1,8 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+#
+# Purpose: Provide the WEIMING-1 Slurm directives used by run-pipeline.sh.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 #SBATCH --output=gcam-runjob-log/gcamRunjob.%j.out
 #SBATCH --partition=C032M0128G     # Use the valid partition on your cluster (MUST BE UPPERCASE)
 #SBATCH --job-name=gcamRun         # Set your job name
@@ -13,4 +16,3 @@ module load mpi/2021.3.0  # From available Intel oneAPI MPI versions
 
 export OMP_NUM_THREADS=1
 ulimit -s unlimited
-

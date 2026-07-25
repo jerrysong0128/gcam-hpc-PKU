@@ -36,6 +36,25 @@ print(f"Python syntax OK: {len(files)} files")
 ' "${TOOLS_DIR}/query-tools"
 }
 
+check_source_headers() {
+    local file
+    while IFS= read -r file; do
+        head -n 15 "${file}" | grep -q 'Purpose:'
+        head -n 15 "${file}" | grep -q 'Author: Jingyang Song, Peking University; Jul 2026;'
+    done < <(
+        find "${TOOLS_DIR}" -type f \
+            \( -name '*.sh' -o -name '*.setup' -o -name '*.profile' \
+               -o -name '*.slurm' -o -name '*.pl' -o -name '*.cpp' -o -name '*.py' \) \
+            ! -path '*/build-tools/lib/*' \
+            | sort
+    )
+
+    grep -q 'Author: Jingyang Song, Peking University; Jul 2026;' \
+        "${TOOLS_DIR}/query-tools/batch_query_generator/query-config.yaml"
+    grep -q 'Jingyang Song, Peking University; Jul 2026;' \
+        "${TOOLS_DIR}/query-tools/batch_query_generator/interactive-query-builder.ipynb"
+}
+
 check_perl_syntax() {
     perl -c "${TOOLS_DIR}/run-tools/parse-scenario-batch.pl"
 }
@@ -113,6 +132,7 @@ check_pipeline_references() {
 
 check_shell_syntax
 check_python_syntax
+check_source_headers
 check_perl_syntax
 check_scenario_generation
 check_query_generation

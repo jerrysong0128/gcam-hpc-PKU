@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Backward-compatible wrapper for build_queries.py."""
+"""Purpose: Preserve the former run_query_builder.py CLI entry point.
+
+Author: Jingyang Song, Peking University; Jul 2026;
+"""
 
 from build_queries import main
 

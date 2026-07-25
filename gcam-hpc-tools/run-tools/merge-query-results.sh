@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Purpose: Collect each scenario's QUERY CSV files and concatenate them into
+# the final run-level CSV after the Slurm RUN job completes.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 #SBATCH --output=gcam-runjob-log/gcamCatCSV.%j.out
 #SBATCH --partition=C064M0256G   # Use the valid partition on your cluster (MUST BE UPPERCASE) sacctmgr show ass user=`whoami` format=part | uniq
 #SBATCH --job-name=gcamCatCSV
@@ -7,6 +12,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --time=2-00:00:00
 
+# Preserve per-scenario files before removing the isolated executable folders.
 for exedir in "${SCRATCHDIR}/exe_"*; do
     run_idx=$(basename "$exedir" | sed 's|exe_||')
     mkdir -p "${OUTPUTDIR}/out_query_${run_idx}"
@@ -15,6 +21,7 @@ for exedir in "${SCRATCHDIR}/exe_"*; do
         cp "$file" "${OUTPUTDIR}/out_query_${run_idx}/"
     done
 done
+# This intentionally preserves the historical raw concatenation behavior.
 echo "Concatenating all CSVs to create Final.csv in ${OUTPUTDIR}..."
 cat "${OUTPUTDIR}"/out_query_*/*.csv > "${OUTPUTDIR}/Final_${SLURM_JOB_ID}.csv"
 

@@ -1,3 +1,8 @@
+"""Purpose: Provide notebook widgets for selecting GCAM queries and regions.
+
+Author: Jingyang Song, Peking University; Jul 2026;
+"""
+
 import xml.etree.ElementTree as ET
 import csv
 import ipywidgets as widgets
@@ -10,7 +15,7 @@ def select_queries_and_regions(queries, regions, output_dir="../batch-queries"):
     Interactive panel for selecting queries and regions.
     On confirm: saves XML with timestamp and shows the file path.
     """
-    # Ensure output directory exists
+    # Generated definitions must land beside the ModelInterface batch control.
     os.makedirs(output_dir, exist_ok=True)
 
     # --- Prepare options with "All" ---
@@ -76,6 +81,7 @@ def select_queries_and_regions(queries, regions, output_dir="../batch-queries"):
 
 
 def read_regions_from_csv(csv_path):
+    """Read the GCAM region column while ignoring commented mapping rows."""
     regions = []
     with open(csv_path, newline='', encoding='utf-8') as csvfile:
         lines = [line for line in csvfile if not line.startswith('#')] # Skip comment lines
@@ -85,6 +91,7 @@ def read_regions_from_csv(csv_path):
     return regions
 
 def build_query_xml(queries, regions, output_file):
+    """Write ModelInterface-compatible aQuery elements for each selection."""
     root = ET.Element("queries")
     for q in queries:
         aquery = ET.SubElement(root, "aQuery")

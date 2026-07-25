@@ -1,3 +1,6 @@
+# Purpose: Provide a fail-fast template for configuring a non-PKU cluster.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 # custom.profile -- template for non-PKU clusters
 # Copy this file to <yoursite>.profile and fill in the values, then set
 # GCAM_HPC_CLUSTER=<yoursite> in environment.sh.

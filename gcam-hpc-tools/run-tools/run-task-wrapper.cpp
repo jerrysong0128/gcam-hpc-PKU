@@ -1,3 +1,7 @@
+// Purpose: Map one single-rank Slurm/MPI task to a numbered run-scenario.sh
+// invocation and return the child process status.
+// Author: Jingyang Song, Peking University; Jul 2026;
+
 #include <iostream>
 #include <stdlib.h>
 #include <string>
@@ -48,4 +52,3 @@ int main (int argc, char * argv[]) {
     
     return result;
 }
-

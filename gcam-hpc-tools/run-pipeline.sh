@@ -1,7 +1,10 @@
-#!/bin/bash
-
-# This is the main script used for running GCAM on the Evergreen cluster
-# It is adapted from the NERSC version!
+#!/usr/bin/env bash
+#
+# Purpose: Orchestrate GCAM input sync, scenario expansion, Slurm submission,
+# per-scenario QUERY execution, and the dependent CSV merge job.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
+# Adapted from the NERSC workflow for PKU HPC clusters.
 
 
 # --------------------------------------------------------------------------------------------
@@ -54,7 +57,7 @@ echo "Config file: $(basename "$CONFIG_FILE")"
 echo "Batch file: $(basename "$BATCH_FILE")"
 
 # --------------------------------------------------------------------------------------------
-# 3. Copy GCAM input directories to scratch
+# 3. Copy GCAM inputs and the preconfigured QUERY XML files to scratch
 # --------------------------------------------------------------------------------------------
 
 
@@ -76,7 +79,7 @@ if [ -d "${GCAM_CHINA_QUERY_DIR}" ] && [ "${GCAM_CHINA_QUERY_DIR}" != "${GCAMDIR
 fi
 
 # --------------------------------------------------------------------------------------------
-# 2. Generate the required permutations of the base configuration file
+# 4. Generate the requested scenario configurations
 # --------------------------------------------------------------------------------------------
 
 echo "Generate permutations (y/n)?"
@@ -93,7 +96,7 @@ else
 fi
 
 # --------------------------------------------------------------------------------------------
-# 3. Figure out how many jobs will be run and generate the gcam.pbs batch file
+# 5. Generate the Slurm task file for the requested number of scenarios
 # --------------------------------------------------------------------------------------------
 
 template_path=$(dirname "$CONFIG_FILE")
@@ -120,7 +123,7 @@ done
 echo "wait" >> $PBS_BATCHFILE
 
 # --------------------------------------------------------------------------------------------
-# 4  Go ahead and run!
+# 6. Submit RUN and schedule the result merge after the Slurm job
 # --------------------------------------------------------------------------------------------
 
 echo "Run $tasks tasks on cluster (y/n)?"

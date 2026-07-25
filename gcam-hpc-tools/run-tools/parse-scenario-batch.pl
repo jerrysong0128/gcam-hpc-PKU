@@ -1,10 +1,11 @@
-#!/usr/bin/perl
-
-# We are being lazy, and not rewriting this in bash
-# Input: batch file name
-# Output: list of component sets and their constituent file sets, with quantity numbers
-#			for easy parsing by our bash script
-# Pralit Patel and Ben Bond-Lamberty, Februrary 2009
+#!/usr/bin/env perl
+#
+# Purpose: Convert a GCAM BatchRunner XML file into the line-oriented records
+# consumed by generate-scenarios.sh.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
+# Original parser by Pralit Patel and Ben Bond-Lamberty, February 2009.
+# Input: BatchRunner XML path. Output: component/file-set records on stdout.
 
 my $batch_file_name = $ARGV[0];
 my $lines;

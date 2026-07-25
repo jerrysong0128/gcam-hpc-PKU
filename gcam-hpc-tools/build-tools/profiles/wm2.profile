@@ -1,3 +1,6 @@
+# Purpose: Define compiler, local libraries, Java, and Slurm for WEIMING-2.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 # wm2.profile -- WEIMING-2 cluster
 # Sourced by environment.sh. Do not source directly.
 # Provides build env (compiler, BOOST/JAVA/TBB/EIGEN, JARS) and SLURM_TEMPLATE.

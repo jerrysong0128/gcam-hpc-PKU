@@ -1,3 +1,6 @@
+# Purpose: Select GCAM queries and regions for build_queries.py.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 # GCAM batch query builder config
 #
 # How to use:

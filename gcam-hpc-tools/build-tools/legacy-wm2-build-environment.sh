@@ -1,9 +1,10 @@
-# gcam-hpc-build-shared-libs.setup
-# made by Jerry Song (jerrysong2025@stu.pku.edu.cn)
-# This is competable for WEIMING-2
-# source gcam-hpc-build-relative-libs-wm2.setup
-# make clean 
-# make gcam -j 16
+#!/usr/bin/env bash
+#
+# Purpose: Configure the legacy WEIMING-2 repository-local build environment.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
+# Prefer build-environment.sh for new workflows. This file remains available
+# for users who still depend on the original WM2 layout.
 
 # === Set GCAM_WORKSPACE ===
 if [ -z "$GCAM_WORKSPACE" ]; then

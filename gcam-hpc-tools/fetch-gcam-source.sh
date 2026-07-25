@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# fetch-gcam-source.sh
-# Download and extract a GCAM source release into the workspace.
+#
+# Purpose: Download and extract a tagged gcam-core or gcam-china source release.
+# Author: Jingyang Song, Peking University; Jul 2026;
 #
 # Both gcam-core (JGCRI/gcam-core) and gcam-china (umd-cgs/gcam-china) are
 # fetched the same way: pull the source-code archive for a given release tag

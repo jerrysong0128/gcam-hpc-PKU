@@ -1,6 +1,8 @@
-#!/bin/bash 
-
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Purpose: Provide the WEIMING-2 Slurm directives used by run-pipeline.sh.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 #SBATCH --output=gcam-runjob-log/gcamRunjob.%j.out
 #SBATCH --partition=C064M0256G   # Use the valid partition on your cluster (MUST BE UPPERCASE) sacctmgr show ass user=`whoami` format=part | uniq
 #SBATCH --job-name=gcamRun

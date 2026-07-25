@@ -1,6 +1,9 @@
-# environment.sh
-# Single source of truth for the GCAM HPC workspace. Source it once, do not
-# re-export anything in downstream scripts.
+#!/usr/bin/env bash
+#
+# Purpose: Export the single source of truth for GCAM-HPC build and run paths.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
+# Source this file once; downstream scripts should not re-export its values.
 #
 # Usage:
 #     source /path/to/gcam-hpc-PKU/gcam-hpc-tools/environment.sh

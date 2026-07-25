@@ -1,6 +1,9 @@
-#!/bin/bash
-
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Purpose: Store the generated Slurm RUN job produced from the active cluster
+# template; run-pipeline.sh rewrites this file for each submission.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 #SBATCH --output=gcam-runjob-log/gcamRunjob.%j.out
 #SBATCH --partition=C064M0256G   # Use the valid partition on your cluster (MUST BE UPPERCASE) sacctmgr show ass user=`whoami` format=part | uniq
 #SBATCH --job-name=gcamRun

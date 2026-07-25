@@ -1,9 +1,10 @@
-# gcam-hpc-build-shared-libs.setup
-# made by Jerry Song (jerrysong2025@stu.pku.edu.cn)
-# This is competable for wm1 (WEIMING-1)
-# source gcam-hpc-build-shared-libs.setup
-# make clean 
-# make gcam -j 16
+#!/usr/bin/env bash
+#
+# Purpose: Configure the legacy WEIMING-1 shared-library build environment.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
+# Prefer build-environment.sh for new workflows. This file remains available
+# for users who still depend on the original WM1 software paths.
 
 # === Set GCAM_HPC_PKU_HOME ===
 # Set this before sourcing the file. Keeping the placeholder outside shell

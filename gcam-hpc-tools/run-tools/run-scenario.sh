@@ -1,5 +1,9 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+#
+# Purpose: Run one numbered GCAM scenario in an isolated executable directory,
+# then execute its preconfigured ModelInterface QUERY batch.
+# Author: Jingyang Song, Peking University; Jul 2026;
+#
 # Compiler module is loaded once via the cluster profile (sourced by
 # environment.sh); do not duplicate it here.
 module load gcc/12.2.0
@@ -45,7 +49,7 @@ err=$?
 
 # make ./inter_query
 mkdir -p ./inter_query
-# Query the output file
+# QUERY is configured before RUN and executes after gcam.exe returns.
 java -cp "$CLASSPATH" ModelInterface.InterfaceMain -b "../output/xmldb_queries/modelinterface-batch.xml"
 
 if [[ $err -gt 0 ]]; then
