@@ -167,6 +167,15 @@ check_pipeline_references() {
     grep -q 'run-tools/merge-query-results.sh' "${TOOLS_DIR}/run-pipeline.sh"
     grep -q 'batch-queries' "${TOOLS_DIR}/run-pipeline.sh"
     grep -q 'modelinterface-batch.xml' "${TOOLS_DIR}/run-tools/run-scenario.sh"
+
+    # Published legacy paths remain resolvable while canonical code uses the
+    # standardized names.
+    test -x "${TOOLS_DIR}/master.sh"
+    test -x "${TOOLS_DIR}/run-tools/run_model.sh"
+    test -L "${TOOLS_DIR}/run-tools/mpi_wrapper.exe"
+    test -L "${TOOLS_DIR}/run-tools/run-template"
+    test -L "${TOOLS_DIR}/run-tools/SPA_mapping"
+    test -L "${TOOLS_DIR}/query-tools/user_batch_queries"
 }
 
 check_shell_syntax
