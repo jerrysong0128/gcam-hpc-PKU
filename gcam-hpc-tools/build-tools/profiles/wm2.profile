@@ -1,5 +1,5 @@
 # wm2.profile -- WEIMING-2 cluster
-# Sourced by gcam_workspace.setup. Do not source directly.
+# Sourced by environment.sh. Do not source directly.
 # Provides build env (compiler, BOOST/JAVA/TBB/EIGEN, JARS) and SLURM_TEMPLATE.
 
 module load gcc/12.2.0
@@ -20,6 +20,6 @@ export EIGEN_INCLUDE="${_GCAM_LIBS}/eigen"
 export TBB_INCLUDE="${_GCAM_LIBS}/tbb-linux/include"
 export TBB_LIB="${_GCAM_LIBS}/tbb-linux/lib/intel64/gcc4.8"
 
-export SLURM_TEMPLATE="${TOOLDIR}/run-tools/run-template/gcam_template_WM2.slurm"
+export SLURM_TEMPLATE="${TOOLDIR}/run-tools/slurm-templates/wm2-run-template.slurm"
 
 unset _GCAM_LIBS

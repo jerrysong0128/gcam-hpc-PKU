@@ -1,11 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Purpose: Preserve the former queue-monitor command name; new code should call
+# monitor-jobs.sh.
+# Author: Jingyang Song, Peking University; Jul 2026;
 
-echo
-echo "Press CTRL-C to stop this listing..."
-
-
-while [ 1 ]; do
-	squeue -u "${GCAM_HPC_USER:-$(whoami)}"
-	sleep 30
-done
-
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "${SCRIPT_DIR}/monitor-jobs.sh" "$@"

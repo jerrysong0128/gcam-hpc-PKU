@@ -37,7 +37,7 @@ print(f"Python syntax OK: {len(files)} files")
 }
 
 check_perl_syntax() {
-    perl -c "${TOOLS_DIR}/run-tools/batch_parser.pl"
+    perl -c "${TOOLS_DIR}/run-tools/parse-scenario-batch.pl"
 }
 
 check_scenario_generation() {
@@ -50,7 +50,7 @@ check_scenario_generation() {
 
     # The bundled batch fixture contains one base set and two policy choices.
     printf 'y\n' |
-        TOOLDIR="${TOOLS_DIR}" bash "${TOOLS_DIR}/run-tools/permutator.sh" \
+        TOOLDIR="${TOOLS_DIR}" bash "${TOOLS_DIR}/run-tools/generate-scenarios.sh" \
             "${fixture_dir}/template.xml" "${fixture_dir}/batch.xml"
 
     local count
@@ -86,11 +86,11 @@ assert root.find("aQuery/region").get("name") == "China"
 }
 
 check_pipeline_references() {
-    grep -q 'run-tools/run_model.sh' "${TOOLS_DIR}/run-tools/mpi_wrapper.cpp"
-    grep -q 'run-tools/permutator.sh' "${TOOLS_DIR}/master.sh"
-    grep -q 'run-tools/cat_queries.sh' "${TOOLS_DIR}/master.sh"
-    grep -q 'user_batch_queries' "${TOOLS_DIR}/master.sh"
-    grep -q 'xmldb_batch.xml' "${TOOLS_DIR}/run-tools/run_model.sh"
+    grep -q 'run-tools/run-scenario.sh' "${TOOLS_DIR}/run-tools/run-task-wrapper.cpp"
+    grep -q 'run-tools/generate-scenarios.sh' "${TOOLS_DIR}/run-pipeline.sh"
+    grep -q 'run-tools/merge-query-results.sh' "${TOOLS_DIR}/run-pipeline.sh"
+    grep -q 'user_batch_queries' "${TOOLS_DIR}/run-pipeline.sh"
+    grep -q 'xmldb_batch.xml' "${TOOLS_DIR}/run-tools/run-scenario.sh"
 }
 
 check_shell_syntax
