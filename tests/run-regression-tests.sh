@@ -59,6 +59,35 @@ check_perl_syntax() {
     perl -c "${TOOLS_DIR}/run-tools/parse-scenario-batch.pl"
 }
 
+check_cpp_syntax() {
+    local include_dir="${TEST_TMP}/cpp-include"
+    mkdir -p "${include_dir}"
+    cat > "${include_dir}/mpi.h" <<'EOF'
+#pragma once
+#define MPI_COMM_WORLD 0
+inline int MPI_Init(int*, char***) { return 0; }
+inline int MPI_Comm_rank(int, int* rank) { *rank = 0; return 0; }
+inline int MPI_Comm_size(int, int* size) { *size = 1; return 0; }
+inline int MPI_Finalize() { return 0; }
+EOF
+    c++ -std=c++11 -fsyntax-only -I "${include_dir}" \
+        "${TOOLS_DIR}/run-tools/run-task-wrapper.cpp"
+}
+
+check_xml_syntax() {
+    python3 -c '
+from pathlib import Path
+import sys
+import xml.etree.ElementTree as ET
+
+root = Path(sys.argv[1])
+files = sorted(path for path in root.rglob("*.xml") if path.is_file())
+for path in files:
+    ET.parse(path)
+print(f"XML syntax OK: {len(files)} files")
+' "${TOOLS_DIR}"
+}
+
 check_scenario_generation() {
     local fixture_dir="${TEST_TMP}/scenario-generation"
     mkdir -p "${fixture_dir}"
@@ -182,6 +211,8 @@ check_shell_syntax
 check_python_syntax
 check_source_headers
 check_perl_syntax
+check_cpp_syntax
+check_xml_syntax
 check_scenario_generation
 check_query_generation
 check_modelinterface_batch
