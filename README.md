@@ -14,28 +14,53 @@ Visit this [Wiki](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki)
 ## Quickstart
 
 1. Clone this repo somewhere on the cluster, e.g. `~/GCAM_Workspace/gcam-hpc-PKU`.
-2. Fetch a GCAM source release with the bundled script (downloads the tagged
-   tarball from GitHub and extracts it next to `gcam-hpc-tools/`):
-   ```bash
-   # gcam-core
-   ./gcam-hpc-tools/build-tools/fetch-gcam-source.sh --variant core  --version gcam-v8.2
+2. Download the required GCAM source package on your local computer:
 
-   # gcam-china
-   ./gcam-hpc-tools/build-tools/fetch-gcam-source.sh --variant china --version gcam-china-v8
-   ```
-   Pick any release tag from the upstream repos:
    - gcam-core: <https://github.com/JGCRI/gcam-core/releases>
    - gcam-china: <https://github.com/umd-cgs/gcam-china/releases>
 
-   The extracted directory matches `gcam-*/cvs/objects/build/linux` and is
-   auto-detected (e.g. `gcam-core-v8.2/`, `gcam-china-v8/`). If you prefer to
-   download manually, just unpack the archive into the workspace yourself.
-3. Edit two lines in `gcam-hpc-tools/build-tools/environment.sh`:
+   GitHub downloads can be unreliable from the HPC login nodes. Download the
+   release archive through a browser, upload it to the repository root on the
+   cluster, and extract it there. The resulting source directory must contain
+   `cvs/objects/build/linux`; directories such as `gcam-core/`,
+   `gcam-core-v8.2/` and `gcam-china-dev/` are detected automatically. Keep
+   only one matching GCAM source directory in the workspace, or set `GCAMDIR`
+   explicitly before sourcing the environment.
+3. Prepare the bundled HPC dependencies:
+
+   ```bash
+   cd gcam-hpc-tools/build-tools
+   unzip gcam-hpc-pku-libs.zip
+   unzip archive/libs.zip
+   ```
+
+   The second archive creates the required `build-tools/libs/` directory:
+
+   ```text
+   libs/
+   ├── boost-lib/
+   ├── eigen/
+   ├── jars/
+   ├── java_linux/
+   └── tbb-linux/
+   ```
+
+   Verify the extraction before continuing:
+
+   ```bash
+   test -d libs/boost-lib &&
+   test -d libs/eigen &&
+   test -d libs/jars &&
+   test -d libs/java_linux &&
+   test -d libs/tbb-linux
+   ```
+4. Edit two lines in `gcam-hpc-tools/build-tools/environment.sh`:
+
    ```bash
    export GCAM_HPC_WORKSPACE=/absolute/path/to/gcam-hpc-PKU
    export GCAM_HPC_CLUSTER=wm2     # or wm1, or a custom profile you add
    ```
-4. Source it once per shell:
+5. Source it once per shell:
    ```bash
    source $GCAM_HPC_WORKSPACE/gcam-hpc-tools/build-tools/environment.sh
    ```
@@ -98,7 +123,8 @@ gcam-hpc-PKU/
 ├── gcam-hpc-tools/
 │   ├── build-tools/
 │   │   ├── environment.sh
-│   │   └── fetch-gcam-source.sh
+│   │   ├── gcam-hpc-pku-libs.zip
+│   │   └── libs/                 # created locally from archive/libs.zip
 │   ├── configuration-sets/
 │   ├── query-tools/
 │   │   ├── batch_query_generator/

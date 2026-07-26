@@ -28,7 +28,7 @@
 # libs directory
 libs
 archive
-# GCAM source releases fetched via build-tools/fetch-gcam-source.sh
+# GCAM source releases downloaded and unpacked in the workspace
 gcam-core*/
 gcam-china*/
 
