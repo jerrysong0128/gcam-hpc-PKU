@@ -17,8 +17,8 @@ selected_queries:
   - iron and steel production by region
   - iron and steel production by tech
 
-# Leave blank to write ../batch-queries/queries-<timestamp>.xml
-# Or set a fixed path, for example: ../batch-queries/queries-custom.xml
+# Leave blank to write ../user_batch_queries/queries-<timestamp>.xml
+# Or set a fixed path, for example: ../user_batch_queries/queries-custom.xml
 output_file:
 
 # Query XML files to read. Paths are relative to this config file.

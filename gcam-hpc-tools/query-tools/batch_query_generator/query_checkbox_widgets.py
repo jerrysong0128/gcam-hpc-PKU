@@ -10,7 +10,7 @@ from IPython.display import display
 from datetime import datetime
 import os
 
-def select_queries_and_regions(queries, regions, output_dir="../batch-queries"):
+def select_queries_and_regions(queries, regions, output_dir="../user_batch_queries"):
     """
     Interactive panel for selecting queries and regions using tick boxes.
     On confirm: saves XML with timestamp and shows the file path.

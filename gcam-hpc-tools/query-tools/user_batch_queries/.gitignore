@@ -1,0 +1,4 @@
+# Purpose: Keep locally generated QUERY XML files out of version control.
+# Author: Jingyang Song, Peking University; Jul 2026;
+
+queries-*.xml

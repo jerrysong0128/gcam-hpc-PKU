@@ -161,7 +161,7 @@ def build_query_xml(queries: List[Tuple[str, ET.Element]], regions: List[str], o
 
 def default_output_path() -> Path:
     timestamp = _dt.datetime.now().strftime("%Y%m%d-%H%M%S")
-    return (SCRIPT_DIR.parent / "batch-queries" / f"queries-{timestamp}.xml").resolve()
+    return (SCRIPT_DIR.parent / "user_batch_queries" / f"queries-{timestamp}.xml").resolve()
 
 
 def main(argv: List[str] | None = None) -> int:

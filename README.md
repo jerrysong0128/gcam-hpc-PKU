@@ -78,8 +78,10 @@ python3 build_queries.py query-config.yaml
 ```
 
 The builder reads query definitions from `query-definitions/` and writes a
-timestamped `queries-YYYYmmdd-HHMMSS.xml` file under `batch-queries/`. Set the
-`<queryFile>` entry in `batch-queries/modelinterface-batch.xml` to that file.
+timestamped `queries-YYYYmmdd-HHMMSS.xml` file under `user_batch_queries/`.
+Set the `<queryFile>` entry in `user_batch_queries/modelinterface-batch.xml`
+to that file. Generated `queries-*.xml` files are local inputs and are not
+tracked by Git.
 
 During RUN, every scenario executes the same synchronized QUERY configuration.
 After the Slurm run job returns successfully, `merge-query-results.sh` collects
