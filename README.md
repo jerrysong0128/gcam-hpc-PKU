@@ -2,7 +2,9 @@
 
 BUILD · RUN · QUERY
 
-This guide describes how to set up and build GCAM for high-performance computing (HPC) at PKU. It covers cloning the necessary repositories, preparing dependencies, configuring environment variables, and building the GCAM model.
+This guide describes the PKU HPC workflow for building GCAM, expanding and
+running scenario ensembles, executing a preconfigured QUERY set for every
+scenario, and merging the resulting CSV files.
 
 The same toolkit works with **any version of `gcam-core` or `gcam-china`** — pick the release you want from upstream and the tools auto-detect the variant.
 
@@ -37,7 +39,9 @@ Visit this [Wiki](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki)
    ```bash
    source $GCAM_HPC_WORKSPACE/gcam-hpc-tools/build-tools/environment.sh
    ```
-   This exports everything the build and run flows need (`GCAMDIR`, `TOOLDIR`, `SCRATCHDIR`, `BOOST_*`, `JAVA_*`, `TBB_*`, `EIGEN_INCLUDE`, `JARS_LIB`, `SLURM_TEMPLATE`). No other exports are needed.
+   This exports everything the build and run flows need (`GCAMDIR`, `TOOLDIR`,
+   `SCRATCHDIR`, dependency paths and `SLURM_TEMPLATE`). No compatibility setup
+   scripts are required.
 
 To support a new site, copy `build-tools/profiles/custom.profile` to `<yoursite>.profile`, fill in the paths, and set `GCAM_HPC_CLUSTER=<yoursite>`.
 
@@ -52,21 +56,20 @@ make gcam -j 16
 
 ## Step RUN
 
-After sourcing `environment.sh`:
+Configure QUERY first, then run the scenario pipeline. With the bundled GCAM
+8.2 example:
 
 ```sh
 "$TOOLDIR/run-pipeline.sh" \
-    "$TOOLDIR/configuration-sets/temp/v82_default_scenario_components.xml" \
-    "$TOOLDIR/configuration-sets/config/events/0828/reference_batch_SSP_MFA_policy.xml"
+    "$TOOLDIR/configuration-sets/config/v82_default/v82_default_scenario_components.xml" \
+    "$TOOLDIR/configuration-sets/config/v82_default/v82_default_batch_2.xml"
 ```
 
-```sh
-"$TOOLDIR/run-pipeline.sh" \
-    "$TOOLDIR/configuration-sets/temp/v82_default_scenario_components.xml" \
-    "$TOOLDIR/configuration-sets/config/events/0910/batch_SSP_mfa_0910.xml"
-```
-
-Run with no arguments to use the bundled defaults.
+Running without arguments selects these same defaults. `run-pipeline.sh`
+synchronizes GCAM inputs and the prepared QUERY files into `gcam-scratch/`,
+expands one configuration per scenario, writes
+`run-tools/slurm-templates/generated-run.slurm`, and submits the RUN and
+dependent merge jobs after confirmation.
 
 ## Step QUERY
 
@@ -87,3 +90,29 @@ During RUN, every scenario executes the same synchronized QUERY configuration.
 After the Slurm run job returns successfully, `merge-query-results.sh` collects
 the per-scenario CSV files and concatenates them into `Final_<jobid>.csv` under
 `$SCRATCHDIR/output/run_<timestamp>/`.
+
+## Repository and runtime layout
+
+```text
+gcam-hpc-PKU/
+├── gcam-hpc-tools/
+│   ├── build-tools/
+│   │   ├── environment.sh
+│   │   └── fetch-gcam-source.sh
+│   ├── configuration-sets/
+│   ├── query-tools/
+│   │   ├── batch_query_generator/
+│   │   └── user_batch_queries/
+│   │       └── modelinterface-batch.xml
+│   ├── run-tools/
+│   └── run-pipeline.sh
+├── gcam-runjob-log/
+└── gcam-scratch/
+    ├── input/
+    └── output/
+```
+
+`gcam-runjob-log/` and `gcam-scratch/{input,output}/` are retained in Git with
+`.gitkeep` files, while their runtime contents are ignored. Local regression
+tests and generated `user_batch_queries/queries-*.xml` files are also excluded
+from the published repository.
