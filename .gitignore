@@ -28,7 +28,7 @@
 # libs directory
 libs
 archive
-# GCAM source releases fetched via gcam-hpc-tools/fetch_gcam_source.sh
+# GCAM source releases fetched via build-tools/fetch-gcam-source.sh
 gcam-core*/
 gcam-china*/
 
@@ -61,9 +61,22 @@ gcam-china*/
 ## Build generated
 build/
 DerivedData
-gcam-scratch
 temp
 events
+
+# Local tests are maintained outside the published repository.
+tests/
+
+# Keep runtime directory structure without tracking generated files.
+gcam-runjob-log/*
+!gcam-runjob-log/.gitkeep
+gcam-scratch/*
+!gcam-scratch/input/
+!gcam-scratch/output/
+gcam-scratch/input/*
+gcam-scratch/output/*
+!gcam-scratch/input/.gitkeep
+!gcam-scratch/output/.gitkeep
 
 ## Various settings
 *.pbxuser
@@ -82,4 +95,3 @@ xcuserdata
 *.xcuserstate
 .Rproj.user
 input/gcamdata/inst/extdata/emissions/CEDS/desktop.ini
-./gcam-hpc-tools/gcam_workspace.setup
