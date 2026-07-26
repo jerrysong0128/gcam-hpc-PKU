@@ -1,5 +1,7 @@
 # GCAM High Performance Computing Cluster for PKU
 
+<img src="asset/tutorial/gcam-hpc-tutorial-Run-title.png" alt="GCAM-HPC parallel scenario runs" width="1000">
+
 BUILD · RUN · QUERY
 
 This guide describes the PKU HPC workflow for building GCAM, expanding and
