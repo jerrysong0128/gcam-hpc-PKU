@@ -100,7 +100,7 @@ esac
 target_dir="$dest/$target_name"
 url="https://github.com/${repo}/archive/refs/tags/${version}.tar.gz"
 
-log() { printf '[fetch_gcam_source] %s\n' "$*"; }
+log() { printf '[fetch-gcam-source] %s\n' "$*"; }
 
 if [ -d "$target_dir" ] && [ "$force" -eq 0 ]; then
     log "Already present: $target_dir"
@@ -149,6 +149,6 @@ fi
 if [ -d "$target_dir/cvs/objects/build/linux" ]; then
     log "Done. GCAM source ready at: $target_dir"
 else
-    echo "[fetch_gcam_source] WARNING: extracted, but cvs/objects/build/linux not found under $target_dir" >&2
+    echo "[fetch-gcam-source] WARNING: extracted, but cvs/objects/build/linux not found under $target_dir" >&2
     echo "                    The release layout may have changed." >&2
 fi

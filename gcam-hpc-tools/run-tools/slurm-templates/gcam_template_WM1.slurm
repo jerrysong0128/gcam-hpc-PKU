@@ -1,1 +1,0 @@
-wm1-run-template.slurm

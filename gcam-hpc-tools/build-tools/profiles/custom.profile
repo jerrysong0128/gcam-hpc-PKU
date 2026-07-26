@@ -33,4 +33,4 @@ export EIGEN_INCLUDE="${EIGEN_INCLUDE:-${TOOLDIR}/build-tools/libs/eigen}"
 # --- Slurm template -------------------------------------------------------
 # Copy run-tools/slurm-templates/wm2-run-template.slurm to a site-specific one
 # (different partition, time limit, modules) and point SLURM_TEMPLATE at it.
-: "${SLURM_TEMPLATE:?set SLURM_TEMPLATE to a slurm template file (see run-tools/run-template/)}"
+: "${SLURM_TEMPLATE:?set SLURM_TEMPLATE to a file under run-tools/slurm-templates/}"

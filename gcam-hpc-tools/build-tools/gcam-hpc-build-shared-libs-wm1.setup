@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-#
-# Purpose: Preserve the former WEIMING-1 build setup path; new code should
-# source legacy-wm1-build-environment.sh or the unified build-environment.sh.
-# Author: Jingyang Song, Peking University; Jul 2026;
-
-_GCAM_WM1_COMPAT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-. "${_GCAM_WM1_COMPAT_DIR}/legacy-wm1-build-environment.sh"
-unset _GCAM_WM1_COMPAT_DIR

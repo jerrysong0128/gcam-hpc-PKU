@@ -132,8 +132,6 @@ assert len(root.findall("aQuery")) == 1
 assert root.find("aQuery/region").get("name") == "China"
 ' "${output}"
 
-    # The former CLI name remains a supported compatibility entry point.
-    python3 "${TOOLS_DIR}/query-tools/batch_query_generator/batch_query_generator.py" "${config}" >/dev/null
 }
 
 check_modelinterface_batch() {
@@ -159,7 +157,8 @@ check_run_pipeline_integration() {
     # Assemble only the files needed to exercise orchestration through Slurm
     # generation; the real 400+ MB dependency bundle is intentionally omitted.
     mkdir -p "${test_tools}/build-tools" "${test_bin}"
-    cp "${TOOLS_DIR}/run-pipeline.sh" "${TOOLS_DIR}/environment.sh" "${test_tools}/"
+    cp "${TOOLS_DIR}/run-pipeline.sh" "${test_tools}/"
+    cp "${TOOLS_DIR}/build-tools/environment.sh" "${test_tools}/build-tools/"
     cp -R "${TOOLS_DIR}/run-tools" "${TOOLS_DIR}/configuration-sets" "${test_tools}/"
     cp -R "${TOOLS_DIR}/build-tools/profiles" "${test_tools}/build-tools/"
     mkdir -p "${test_tools}/query-tools"
@@ -197,14 +196,8 @@ check_pipeline_references() {
     grep -q 'batch-queries' "${TOOLS_DIR}/run-pipeline.sh"
     grep -q 'modelinterface-batch.xml' "${TOOLS_DIR}/run-tools/run-scenario.sh"
 
-    # Published legacy paths remain resolvable while canonical code uses the
-    # standardized names.
-    test -x "${TOOLS_DIR}/master.sh"
-    test -x "${TOOLS_DIR}/run-tools/run_model.sh"
-    test -L "${TOOLS_DIR}/run-tools/mpi_wrapper.exe"
-    test -L "${TOOLS_DIR}/run-tools/run-template"
-    test -L "${TOOLS_DIR}/run-tools/SPA_mapping"
-    test -L "${TOOLS_DIR}/query-tools/user_batch_queries"
+    grep -q 'build-tools/environment.sh' "${TOOLS_DIR}/run-pipeline.sh"
+    test -x "${TOOLS_DIR}/build-tools/fetch-gcam-source.sh"
 }
 
 check_shell_syntax

@@ -13,10 +13,10 @@
 
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "${SCRIPT_DIR}/environment.sh" || exit 1
+source "${SCRIPT_DIR}/build-tools/environment.sh" || exit 1
 
 if [ -z "$GCAM_HPC_WORKSPACE" ]; then
-    echo "NOTICE: Please set GCAM_HPC_WORKSPACE in environment.sh to the absolute path of your gcam-hpc-PKU repo"
+    echo "NOTICE: Please set GCAM_HPC_WORKSPACE in build-tools/environment.sh to the absolute path of your gcam-hpc-PKU repo"
     exit 1
 fi
 

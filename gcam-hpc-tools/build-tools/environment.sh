@@ -6,7 +6,7 @@
 # Source this file once; downstream scripts should not re-export its values.
 #
 # Usage:
-#     source /path/to/gcam-hpc-PKU/gcam-hpc-tools/environment.sh
+#     source /path/to/gcam-hpc-PKU/gcam-hpc-tools/build-tools/environment.sh
 #
 # GCAM source releases (download and extract under $GCAM_HPC_WORKSPACE):
 #   gcam-core   https://github.com/JGCRI/gcam-core/releases

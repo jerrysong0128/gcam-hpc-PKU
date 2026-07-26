@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-#
-# Purpose: Preserve the former environment setup path for existing shell
-# sessions and documentation; new code should source environment.sh.
-# Author: Jingyang Song, Peking University; Jul 2026;
-
-_GCAM_COMPAT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-. "${_GCAM_COMPAT_DIR}/environment.sh"
-unset _GCAM_COMPAT_DIR

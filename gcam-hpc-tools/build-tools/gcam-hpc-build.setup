@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-#
-# Purpose: Preserve the former build environment path; new code should source
-# build-environment.sh.
-# Author: Jingyang Song, Peking University; Jul 2026;
-
-_GCAM_BUILD_COMPAT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-. "${_GCAM_BUILD_COMPAT_DIR}/build-environment.sh"
-unset _GCAM_BUILD_COMPAT_DIR
