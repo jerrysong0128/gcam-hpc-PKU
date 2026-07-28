@@ -1,6 +1,6 @@
 # GCAM High Performance Computing Cluster for PKU
 
-<img src="asset/tutorial/gcam-hpc-tutorial-Run-title.png" alt="GCAM-HPC parallel scenario runs" width="1000">
+<img src="asset/framework/gcam-hpc-tutorial-Run-title.png" alt="GCAM-HPC parallel scenario runs" width="1000">
 
 BUILD · RUN · QUERY
 
@@ -144,3 +144,9 @@ gcam-hpc-PKU/
 `.gitkeep` files, while their runtime contents are ignored. Local regression
 tests and generated `user_batch_queries/queries-*.xml` files are also excluded
 from the published repository.
+
+## Acknowledgements
+
+This repository builds on previous work by [Jay Fuhrman at the University of
+Virginia](https://github.com/jayfuhrman/gcam-hpc-starterpack). We gratefully
+acknowledge his original `gcam-hpc-starterpack` project.
