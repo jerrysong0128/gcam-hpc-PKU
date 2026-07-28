@@ -11,9 +11,9 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --time=2-00:00:00
 
-module purge
-module load intel_parallel_studio/2019.1
-module load mpi/2021.8.0   # Instead of 2021.3.0 which isn't available
+module purge 
+module load compiler/2023.0.0 
+module load mpi/2021.8.0
 
 export OMP_NUM_THREADS=1
 ulimit -s unlimited
