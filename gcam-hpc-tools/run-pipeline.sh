@@ -38,6 +38,17 @@ echo "Output directory: $OUTPUTDIR"
 
 EXPECTED_ARGS=2
 
+# Keep the existing RUN flow; select only the per-scenario QUERY backend.
+export POSTPROCESS=query
+if [[ "${1:-}" == "--postprocess" ]]; then
+    export POSTPROCESS="${2:-}"
+    shift 2 || exit 2
+fi
+case "$POSTPROCESS" in
+    query|gcamreport) ;;
+    *) echo "Usage: $0 [--postprocess query|gcamreport] [template.xml batch.xml]" >&2; exit 2 ;;
+esac
+
 DEFAULT_CONFIG="${TOOLDIR}/configuration-sets/config/v82_default/v82_default_scenario_components.xml"
 DEFAULT_BATCH="${TOOLDIR}/configuration-sets/config/v82_default/v82_default_batch_2.xml"
 
@@ -117,10 +128,25 @@ let "tasks=$last_task - $first_task + 1"
 sed -e "s/NUM_TASKS/${num_tasks}/g" -e "s/NTASKS_TOTAL/${ntasks_total}/g" "$PBS_TEMPLATEFILE" \
 > "$PBS_BATCHFILE"
 
+if [[ "$POSTPROCESS" == gcamreport ]]; then
+    bash "${TOOLDIR}/query-tools/reporting/container.sh" || exit 1
+    echo 'pids=()' >> "$PBS_BATCHFILE"
+fi
+
 for (( i=0; i<$num_tasks; i++ )); do
-    echo "srun -n 1 ./gcam-hpc-tools/run-tools/run-task-wrapper.exe ${template_path}/${template_root} $i &" >> $PBS_BATCHFILE
+    if [[ "$POSTPROCESS" == gcamreport ]]; then
+        # Propagate report failures without depending on the old MPI binary.
+        printf 'srun -n 1 bash %q %q %s &\n' "$RUN_SCRIPT" "${template_path}/${template_root}" "$i" >> "$PBS_BATCHFILE"
+        echo 'pids+=( "$!" )' >> "$PBS_BATCHFILE"
+    else
+        echo "srun -n 1 ./gcam-hpc-tools/run-tools/run-task-wrapper.exe ${template_path}/${template_root} $i &" >> $PBS_BATCHFILE
+    fi
 done
-echo "wait" >> $PBS_BATCHFILE
+if [[ "$POSTPROCESS" == gcamreport ]]; then
+    echo 'result=0; for pid in "${pids[@]}"; do if wait "$pid"; then :; else result=1; fi; done; exit "$result"' >> "$PBS_BATCHFILE"
+else
+    echo "wait" >> $PBS_BATCHFILE
+fi
 
 # --------------------------------------------------------------------------------------------
 # 6. Submit RUN and schedule the result merge after the Slurm job

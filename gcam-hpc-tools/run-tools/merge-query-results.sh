@@ -12,6 +12,28 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --time=2-00:00:00
 
+# IAMC CSVs share one header; merge them directly in shell.
+if [[ "${POSTPROCESS:-query}" == gcamreport ]]; then
+    set -euo pipefail
+    shopt -s nullglob
+    files=( "$OUTPUTDIR"/out_iamc_*/iamc.csv )
+    [[ ${#files[@]} -gt 0 ]] || { echo 'ERROR: no IAMC CSVs to merge' >&2; exit 1; }
+    temporary=$(mktemp "$OUTPUTDIR/merge.XXXXXXXX")
+    trap 'rm -f "$temporary"' EXIT
+    header=
+    for csv in "${files[@]}"; do
+        IFS= read -r current < "$csv"
+        if [[ -z "$header" ]]; then
+            header=$current
+            printf '%s\n' "$header" > "$temporary"
+        fi
+        [[ "$current" == "$header" ]] || { echo "ERROR: IAMC headers differ: $csv" >&2; exit 1; }
+        tail -n +2 "$csv" >> "$temporary"
+    done
+    final="$OUTPUTDIR/IAMC_Final_${SLURM_JOB_ID:-manual}.csv"
+    mv "$temporary" "$final"
+    echo "IAMC CSV ready: $final"
+else
 # Preserve per-scenario files before removing the isolated executable folders.
 for exedir in "${SCRATCHDIR}/exe_"*; do
     run_idx=$(basename "$exedir" | sed 's|exe_||')
@@ -24,9 +46,12 @@ done
 # This intentionally preserves the historical raw concatenation behavior.
 echo "Concatenating all CSVs to create Final.csv in ${OUTPUTDIR}..."
 cat "${OUTPUTDIR}"/out_query_*/*.csv > "${OUTPUTDIR}/Final_${SLURM_JOB_ID}.csv"
+fi
 
 echo "Cleaning up: deleting all ${SCRATCHDIR}/exe_* directories..."
 rm -rf "${SCRATCHDIR}/exe_"*
 
 echo "Cleaning up: deleting all files in ${TOOLDIR}/configuration-sets/temp ..."
-find "${TOOLDIR}/configuration-sets/temp" -type f ! -name 'v82_default_scenario_components.xml' -delete
+if [[ -d "${TOOLDIR}/configuration-sets/temp" ]]; then
+    find "${TOOLDIR}/configuration-sets/temp" -type f ! -name 'v82_default_scenario_components.xml' -delete
+fi

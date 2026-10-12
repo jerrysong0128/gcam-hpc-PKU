@@ -20,6 +20,7 @@ echo "copied run set documentation to scratch"
 
 if [ ! -e $CONFIGURATION_FILE ]; then
 	echo "$CONFIGURATION_FILE does not exist; task $2 bailing!"
+	[[ "${POSTPROCESS:-query}" != gcamreport ]] || exit 1
 	exit
 fi
 
@@ -46,6 +47,18 @@ chmod 2775 -R ${SCRATCHDIR}/exe_$2
 echo "Starting gcam"
 ./gcam.exe -C${CONFIGURATION_FILE} > "${OUTPUTDIR}/output_${2}.txt"
 err=$?
+
+# Alternative QUERY backend; the official ModelInterface batch remains default.
+if [[ "${POSTPROCESS:-query}" == gcamreport ]]; then
+    [[ $err -eq 0 ]] || exit "$err"
+    success=0
+    for log in "${OUTPUTDIR}/output_${2}.txt" logs/main_log.txt logs/main_log main_log.txt; do
+        if [[ -f "$log" ]] && grep -q 'Model exiting successfully' "$log"; then success=1; fi
+    done
+    [[ "$success" == 1 ]] || { echo "ERROR: GCAM completion marker missing for task $2" >&2; exit 1; }
+    bash "${TOOLDIR}/query-tools/reporting/run-report.sh" "$2"
+    exit $?
+fi
 
 # make ./inter_query
 mkdir -p ./inter_query

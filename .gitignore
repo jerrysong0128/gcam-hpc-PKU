@@ -28,6 +28,8 @@
 # libs directory
 libs
 archive
+# Prepared reporting container images.
+/containers/
 # GCAM source releases downloaded and unpacked in the workspace
 gcam-core*/
 gcam-china*/

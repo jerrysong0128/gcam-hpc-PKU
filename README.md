@@ -6,7 +6,8 @@ BUILD · RUN · QUERY
 
 This guide describes the PKU HPC workflow for building GCAM, expanding and
 running scenario ensembles, executing a preconfigured QUERY set for every
-scenario, and merging the resulting CSV files.
+scenario, and merging the resulting CSV files. Official QUERY remains the
+default; an optional gcamreport container exports IAMC CSVs for shell merging.
 
 The same toolkit works with **any version of `gcam-core` or `gcam-china`** — pick the release you want from upstream and the tools auto-detect the variant.
 
@@ -99,6 +100,53 @@ expands one configuration per scenario, writes
 dependent merge jobs after confirmation.
 
 ## Step QUERY
+
+Official QUERY is the default. The optional gcamreport flow is:
+**GCAM → IAMC CSV per scenario → shell merge into one CSV**. Containerized R
+reads the scenario's BaseX database, detects the model version, and calls
+`gcamreport::generate_report()` to map variables and convert units to IAMC format
+(`Model,Scenario,Region,Variable,Unit,<years>`).
+
+Prepare the container once on an internet-connected **Linux x86_64** machine
+with Docker, rsync and Apptainer/Singularity:
+
+```bash
+cd /path/to/gcam-hpc-PKU
+git submodule update --init --recursive
+bash gcam-hpc-tools/query-tools/reporting/prepare-container.sh
+```
+
+This builds from the upstream Docker environment and the local gcamreport
+submodule. Upload `containers/gcamreport/gcamreport.sif` to the same location
+in the HPC repository. Compute nodes need Apptainer/Singularity; R and its
+packages are already inside the image.
+
+After the Quickstart environment setup and BUILD, run on the HPC:
+
+```bash
+export GCAMREPORT_SIF="$GCAM_HPC_WORKSPACE/containers/gcamreport/gcamreport.sif"
+export GCAMREPORT_MODULE=apptainer  # use the site's module name; omit if already in PATH
+bash "$TOOLDIR/run-pipeline.sh" --postprocess gcamreport \
+    /absolute/path/to/your-template.xml /absolute/path/to/your-batch.xml
+```
+
+For the first check, enter `1` at the simultaneous-runs prompt to verify one
+scenario before submitting the full ensemble.
+
+Use configuration files matching your model, with `xmldb-location`
+`write-output="1"` and a database path in each scenario's working directory
+(e.g. `./db/database_basexdb`). Current core mappings cover 7.0, 7.1, 7.2 and
+8.2; GCAM-China uses the corresponding core mapping, whose coverage determines
+the available China variables and regions. Unsupported versions report an error.
+
+Results are under `$SCRATCHDIR/output/run_<timestamp>/`: each scenario has
+`out_iamc_<index>/iamc.csv` and `report.log`. Once all scenarios succeed,
+`merge-query-results.sh` merges CSVs with matching headers into
+`IAMC_Final_<jobid>.csv`, retaining one header. Merging uses shell only.
+Successful merging also runs the existing scratch cleanup.
+Run one pipeline at a time; omit `--postprocess gcamreport` to use official QUERY.
+
+For the default official QUERY backend, follow the existing steps below.
 
 Configure QUERY before starting `run-pipeline.sh`:
 
