@@ -85,6 +85,17 @@ run_china_report <- function(conn, scenario, config) {
   sys.source(file.path(reporting$src_dir, "mapping.R"), envir = reporting)
   reporting$prj <- rgcam::addScenario(conn, file.path(getwd(), "gcamchina-report.dat"),
     scenario, file.path(source_dir, "src/query_use.xml"), clobber = TRUE, saveProj = FALSE)
+  # Use the database's periods, including GCAM-China's 2021 calibration year.
+  years <- sort(unique(rgcam::getQuery(reporting$prj, "population by region")$year))
+  reporting$GCAM_years <- years
+  reporting$reporting_years <- years[years >= 2005 & years <= 2100]
+  reporting$reporting_columns <- c("model", "scenario", "region", "variable", "unit", reporting$reporting_years)
+  reporting$period_length <- setNames(c(NA_real_, diff(years)), as.character(years))
+  replace_expr <- function(expr, from, to) {
+    if (identical(expr, from)) return(to)
+    if (is.call(expr)) for (i in seq_along(expr)) expr[[i]] <- replace_expr(expr[[i]], from, to)
+    expr
+  }
   # Keep upstream calculations; the wrapper supplies inputs and exports CSV.
   # GDP is not exported by upstream and its query is absent in macro databases.
   script <- parse(file.path(source_dir, "Reporting.R"))
@@ -92,7 +103,23 @@ run_china_report <- function(conn, scenario, config) {
     (as.character(expr[[1]]) %in% c("source", "write.csv") ||
       (identical(expr[[1]], as.name("<-")) && is.symbol(expr[[2]]) &&
         as.character(expr[[2]]) %in% c("Scenarios", "prj", "GDP_PPP_clean"))), logical(1))
-  for (expr in script[!setup]) eval(expr, envir = reporting)
+  for (expr in script[!setup]) {
+    if (is.call(expr) && identical(expr[[1]], as.name("<-"))) {
+      target <- as.character(expr[[2]])
+      if (identical(target, "cf_iea") && !2020 %in% years && 2021 %in% years) {
+        # Retain upstream IEA X2020 data; align only its GCAM reference period.
+        expr <- replace_expr(expr, 2020, 2021)
+        expr <- replace_expr(expr, quote(seq(2005, 2021, by = 5)), quote(reporting_years[reporting_years <= 2021]))
+      }
+      if (identical(target, "elec_cf")) {
+        expr <- replace_expr(expr, quote(c(1990, seq(2005, 2100, by = 5))), quote(GCAM_years[GCAM_years >= 1990]))
+      }
+      if (identical(target, "elec_capacity_add")) {
+        expr <- replace_expr(expr, quote(value / 5), quote(value / period_length[as.character(year)]))
+      }
+    }
+    eval(expr, envir = reporting)
+  }
   report <- reporting$IAMC_format_china
   names(report)[1:5] <- c("Model", "Scenario", "Region", "Variable", "Unit")
   report$Model <- "GCAM-China"
@@ -106,6 +133,10 @@ run_china_report <- function(conn, scenario, config) {
   if (!is.null(options$final_year)) {
     years <- grep("^[0-9]{4}$", names(report), value = TRUE)
     report <- report[, c(names(report)[1:5], years[as.integer(years) <= options$final_year]), drop = FALSE]
+  }
+  # Undefined upstream capacity calculations are missing IAMC values.
+  for (column in names(report)[-(1:5)]) {
+    report[[column]][!is.finite(report[[column]])] <- NA_real_
   }
   report
 }
