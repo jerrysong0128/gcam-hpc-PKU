@@ -69,6 +69,9 @@ events
 # Local tests are maintained outside the published repository.
 tests/
 
+# Slurm job scripts are generated for each submission.
+/gcam-hpc-tools/run-tools/slurm-templates/generated-run.slurm
+
 # Keep runtime directory structure without tracking generated files.
 gcam-runjob-log/*
 !gcam-runjob-log/.gitkeep

@@ -48,6 +48,12 @@ echo "Concatenating all CSVs to create Final.csv in ${OUTPUTDIR}..."
 cat "${OUTPUTDIR}"/out_query_*/*.csv > "${OUTPUTDIR}/Final_${SLURM_JOB_ID}.csv"
 fi
 
+# Report recovery retains its databases and configurations for inspection.
+if [[ "${GCAM_KEEP_SCRATCH:-0}" == 1 ]]; then
+    echo "Scratch and scenario configurations retained (GCAM_KEEP_SCRATCH=1)."
+    exit 0
+fi
+
 echo "Cleaning up: deleting all ${SCRATCHDIR}/exe_* directories..."
 rm -rf "${SCRATCHDIR}/exe_"*
 

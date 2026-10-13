@@ -24,6 +24,17 @@ export GCAM_HPC_CLUSTER="${GCAM_HPC_CLUSTER:-wm2}"
 # HPC username for squeue (defaults to current shell user).
 export GCAM_HPC_USER="${GCAM_HPC_USER:-$(whoami)}"
 
+# Per-scenario query backend: query (native ModelInterface) or gcamreport (IAMC).
+# Change this default once; run-pipeline.sh also accepts --postprocess to override.
+export POSTPROCESS="${POSTPROCESS:-query}"
+
+# gcamreport settings are used only when POSTPROCESS=gcamreport.
+export GCAMREPORT_SIF="${GCAMREPORT_SIF:-${GCAM_HPC_WORKSPACE}/containers/gcamreport/gcamreport.sif}"
+# PKU wm2 module; change for another site. An explicit empty value uses PATH.
+export GCAMREPORT_MODULE="${GCAMREPORT_MODULE-singularity/3.11.3}"
+# Report selections; edit this R file or point to another absolute config path.
+export GCAMREPORT_CONFIG="${GCAMREPORT_CONFIG:-${GCAM_HPC_WORKSPACE}/gcam-hpc-tools/query-tools/reporting/report-config.R}"
+
 # ----- Derived (do not edit below) ------------------------------------------
 
 if [ -z "${GCAM_HPC_WORKSPACE}" ] || [ ! -d "${GCAM_HPC_WORKSPACE}" ]; then

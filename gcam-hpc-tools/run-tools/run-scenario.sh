@@ -50,12 +50,30 @@ err=$?
 
 # Alternative QUERY backend; the official ModelInterface batch remains default.
 if [[ "${POSTPROCESS:-query}" == gcamreport ]]; then
-    [[ $err -eq 0 ]] || exit "$err"
     success=0
+    unsolved=
     for log in "${OUTPUTDIR}/output_${2}.txt" logs/main_log.txt logs/main_log main_log.txt; do
-        if [[ -f "$log" ]] && grep -q 'Model exiting successfully' "$log"; then success=1; fi
+        if [[ -f "$log" ]]; then
+            if grep -q 'Model exiting successfully' "$log"; then success=1; fi
+            if [[ -z "$unsolved" ]]; then
+                unsolved=$(grep 'The following model periods did not solve:' "$log" | tail -n 1)
+            fi
+        fi
     done
+    # GCAM returns 1 for unsolved periods even after writing its complete database.
+    # Preserve the model status separately from the success of report generation.
+    status="${OUTPUTDIR}/model_status_${2}.txt"
+    printf 'GCAM exit code: %s\nCompletion marker: %s\n' "$err" "$success" > "$status"
+    if [[ -n "$unsolved" ]]; then printf '%s\n' "$unsolved" >> "$status"; fi
     [[ "$success" == 1 ]] || { echo "ERROR: GCAM completion marker missing for task $2" >&2; exit 1; }
+    if [[ $err -ne 0 ]]; then
+        if [[ $err -eq 1 && -n "$unsolved" ]]; then
+            echo "WARNING: task $2 completed with unsolved periods; exporting the database. See $status" >&2
+        else
+            echo "ERROR: GCAM failed for task $2 with exit code $err; see $status" >&2
+            exit "$err"
+        fi
+    fi
     bash "${TOOLDIR}/query-tools/reporting/run-report.sh" "$2"
     exit $?
 fi

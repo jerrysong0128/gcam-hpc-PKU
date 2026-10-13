@@ -31,27 +31,69 @@ select_mapping <- function(version, supported, override = "") {
   mapping
 }
 
-args <- commandArgs(trailingOnly = TRUE)
-stopifnot(length(args) == 4L)
-library(gcamreport)
-library(rgcam)
-task <- read_configuration(args[[1]], args[[2]])
-conn <- rgcam::localDBConn(task$db_path, task$db_name, migabble = FALSE)
-scenarios <- rgcam::listScenariosInDB(conn)
-selected <- scenarios[scenarios$name == task$scenario, , drop = FALSE]
-if (nrow(selected) != 1L) stop("Expected one database entry for scenario ", task$scenario)
-mapping <- select_mapping(as.character(selected$version[[1]]),
-                          gcamreport::available_GCAM_versions, args[[3]])
-message("Scenario: ", task$scenario, "; GCAM mapping: ", mapping)
-gcamreport::generate_report(
-  db_path = task$db_path, db_name = task$db_name, prj_name = "gcamreport.dat",
-  scenarios = task$scenario, GCAM_version = mapping,
-  save_output = "CSV", output_file = file.path(getwd(), "iamc"),
-  launch_ui = FALSE, interactive = FALSE
-)
-if (grepl("china", basename(args[[4]]), ignore.case = TRUE)) {
-  report <- read.csv("iamc.csv", check.names = FALSE, stringsAsFactors = FALSE)
-  report$Model <- "GCAM-China"
-  write.csv(report, "iamc.csv", row.names = FALSE, na = "")
+read_report_options <- function(config, mapping) {
+  settings <- new.env(parent = baseenv())
+  sys.source(config, envir = settings)
+  if (!exists("report_options", envir = settings, inherits = FALSE)) {
+    stop("Report config must define report_options: ", config)
+  }
+  options <- settings$report_options
+  if (!is.list(options) || !length(options) || is.null(names(options)) ||
+      anyNA(names(options)) || any(!nzchar(names(options))) || anyDuplicated(names(options))) {
+    stop("report_options must be a named list with unique parameter names: ", config)
+  }
+  task_parameters <- c("db_path", "db_name", "prj_name", "scenarios", "GCAM_version", "output_file")
+  allowed <- c(setdiff(names(formals(gcamreport::generate_report)), task_parameters), "excluded_regions")
+  unknown <- setdiff(names(options), allowed)
+  if (length(unknown)) stop("Unsupported or task-managed report parameters: ", paste(unknown, collapse = ", "))
+  # Reports run unattended on HPC; retain these defaults in custom configs too.
+  if (is.null(options$launch_ui)) options$launch_ui <- FALSE
+  if (is.null(options$interactive)) options$interactive <- FALSE
+  excluded <- options$excluded_regions
+  options$excluded_regions <- NULL
+  if (length(excluded)) {
+    if (!is.character(excluded) || anyNA(excluded)) stop("excluded_regions must be a character vector")
+    available <- gcamreport::available_regions(print = FALSE, GCAM_version = mapping)
+    unknown_regions <- setdiff(excluded, available)
+    if (length(unknown_regions)) stop("Unknown excluded regions: ", paste(unknown_regions, collapse = ", "))
+    regions <- options$desired_regions
+    if (is.null(regions) || identical(regions, "All")) regions <- available
+    options$desired_regions <- setdiff(regions, excluded)
+    if (!length(options$desired_regions)) stop("Region selection is empty after exclusions")
+  }
+  options
 }
-unlink(file.path(task$db_path, paste0(task$db_name, "_gcamreport.dat")))
+
+run_report <- function(args) {
+  if (length(args) != 5L) stop("Expected scenario XML, executable directory, mapping, model directory, and report config")
+  library(gcamreport)
+  library(rgcam)
+  task <- read_configuration(args[[1]], args[[2]])
+  conn <- rgcam::localDBConn(task$db_path, task$db_name, migabble = FALSE)
+  scenarios <- rgcam::listScenariosInDB(conn)
+  selected <- scenarios[scenarios$name == task$scenario, , drop = FALSE]
+  if (nrow(selected) != 1L) stop("Expected one database entry for scenario ", task$scenario)
+  mapping <- select_mapping(as.character(selected$version[[1]]),
+                            gcamreport::available_GCAM_versions, args[[3]])
+  options <- read_report_options(args[[5]], mapping)
+  message("Scenario: ", task$scenario, "; GCAM mapping: ", mapping, "; report config: ", args[[5]])
+  output_file <- file.path(getwd(), "iamc")
+  do.call(gcamreport::generate_report, c(list(
+    db_path = task$db_path, db_name = task$db_name, prj_name = "gcamreport.dat",
+    scenarios = task$scenario, GCAM_version = mapping, output_file = output_file
+  ), options))
+  # Upstream always saves report to RData, including when save_output=FALSE.
+  # Export the pipeline CSV explicitly so downstream shell merging still works.
+  result <- new.env(parent = emptyenv())
+  load(paste0(output_file, ".RData"), envir = result)
+  report <- result$report
+  required <- c("Model", "Scenario", "Region", "Variable", "Unit")
+  if (!is.data.frame(report) || !nrow(report) || !all(required %in% names(report))) {
+    stop("gcamreport produced an empty or invalid IAMC report")
+  }
+  if (grepl("china", basename(args[[4]]), ignore.case = TRUE)) report$Model <- "GCAM-China"
+  write.csv(report, paste0(output_file, ".csv"), row.names = FALSE, na = "")
+  unlink(file.path(task$db_path, paste0(task$db_name, "_gcamreport.dat")))
+}
+
+if (sys.nframe() == 0L) run_report(commandArgs(trailingOnly = TRUE))

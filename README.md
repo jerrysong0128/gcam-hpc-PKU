@@ -107,8 +107,10 @@ reads the scenario's BaseX database, detects the model version, and calls
 `gcamreport::generate_report()` to map variables and convert units to IAMC format
 (`Model,Scenario,Region,Variable,Unit,<years>`).
 
-Prepare the container once on an internet-connected **Linux x86_64** machine
-with Docker, rsync and Apptainer/Singularity:
+Prepare the container once on an internet-connected **Linux x86_64** build
+machine with rsync, curl, jq and Apptainer/Singularity (no Python required).
+PKU login nodes are for job submission; use a permitted networked build
+machine for preparation, then place the SIF in `containers/gcamreport/`:
 
 ```bash
 cd /path/to/gcam-hpc-PKU
@@ -116,19 +118,68 @@ git submodule update --init --recursive
 bash gcam-hpc-tools/query-tools/reporting/prepare-container.sh
 ```
 
-This builds from the upstream Docker environment and the local gcamreport
-submodule. Upload `containers/gcamreport/gcamreport.sif` to the same location
-in the HPC repository. Compute nodes need Apptainer/Singularity; R and its
-packages are already inside the image.
+Preparation uses the pinned upstream R/Java image and the checked-out
+gcamreport submodule. It uses Docker when available, otherwise a user-owned
+sandbox requiring neither Docker nor sudo/fakeroot. On PKU it loads
+`singularity/3.11.3`. The Bash helper verifies the base image digests and omits
+old application data layers; downloads are cached in
+`containers/gcamreport/base-cache/`. The SIF is published only after validation.
 
-After the Quickstart environment setup and BUILD, run on the HPC:
+The upstream image's dplyr 1.0.7 lacks APIs required by this source.
+`install-dependencies.R` installs dplyr 1.1.4 and compatible pinned dependencies
+inside the container. Preparation needs the image registry and
+`cloud.r-project.org`; compute jobs need only the prepared SIF and runtime.
+A mapping-data namespace fix is applied to the build copy, leaving the
+gcamreport submodule unchanged.
+
+Optional build overrides are `GCAMREPORT_BUILD_MODE=sandbox|docker`,
+`GCAMREPORT_SLIM_BASE=0` for the full base image, and `GCAMREPORT_BASE_IMAGE`
+for a `docker://` URI retaining the Dockerfile's pinned digest. The default
+sandbox registry is `docker.1panel.live`; direct Docker Hub access also needs
+`GCAMREPORT_SLIM_BASE=0`.
+
+`gcam-hpc-tools/build-tools/environment.sh` provides the SIF path, runtime
+module, report config path, and default `POSTPROCESS=query`. Set that default
+to `gcamreport` for repeated IAMC runs, or select it per invocation. On another
+site, change `GCAMREPORT_MODULE`; an empty value uses the runtime in PATH.
+After BUILD, submit from the login node:
 
 ```bash
-export GCAMREPORT_SIF="$GCAM_HPC_WORKSPACE/containers/gcamreport/gcamreport.sif"
-export GCAMREPORT_MODULE=apptainer  # use the site's module name; omit if already in PATH
-bash "$TOOLDIR/run-pipeline.sh" --postprocess gcamreport \
+export GCAMDIR=/absolute/path/to/gcam-core
+bash /absolute/path/to/gcam-hpc-PKU/gcam-hpc-tools/run-pipeline.sh --postprocess gcamreport \
     /absolute/path/to/your-template.xml /absolute/path/to/your-batch.xml
 ```
+
+`run-pipeline.sh` sources `environment.sh` automatically. `--postprocess`
+overrides the configured backend for the RUN and merge jobs. Inputs are
+synchronized into the fixed `gcam-scratch/input` directory on every run.
+Login checks only runtime availability and paths; R/Java preflight runs in
+the Slurm allocation. Reporting uses rgcam's compiled ModelInterface JAR
+with the host GCAM dependency JARs. Set `GCAMREPORT_MI_JAR` only to override
+it with a compatible compiled JAR.
+
+Report selections live in `gcam-hpc-tools/query-tools/reporting/report-config.R`.
+The defaults include all regions and variables through 2100. Edit
+`report_options` in that file:
+
+```r
+desired_regions = "All",                  # or c("China", "USA")
+excluded_regions = character(),            # or c("USA") to exclude regions
+desired_variables = "All",                # or c("Population", "Emissions|CO2")
+inverse_desired_variables = FALSE,          # TRUE excludes the listed variables
+ignore = c("scrap-constraint", "CO2_NearTerm", "globalCO2_LTG")
+```
+
+Variable exclusion accepts patterns such as `"Emissions|CH4*"`; use a concrete
+selection instead of `"All"` in exclusion mode. `ignore` handles unmapped
+internal and policy market names, including region prefixes;
+`desired_variables` selects standard IAMC outputs. Selecting a region subset
+also restricts the generated World aggregate to those regions.
+
+Set `GCAMREPORT_CONFIG` to another absolute path for per-run selections.
+Config changes need no SIF rebuild. Database, scenario, version and output
+paths are supplied by the task. Keep `save_output = FALSE` and the UI disabled;
+the adapter exports `iamc.csv` from gcamreport's RData result.
 
 For the first check, enter `1` at the simultaneous-runs prompt to verify one
 scenario before submitting the full ensemble.
@@ -144,7 +195,14 @@ Results are under `$SCRATCHDIR/output/run_<timestamp>/`: each scenario has
 `merge-query-results.sh` merges CSVs with matching headers into
 `IAMC_Final_<jobid>.csv`, retaining one header. Merging uses shell only.
 Successful merging also runs the existing scratch cleanup.
-Run one pipeline at a time; omit `--postprocess gcamreport` to use official QUERY.
+Set `GCAM_KEEP_SCRATCH=1` to retain databases and scenario configurations after
+merging. A completed GCAM run with
+exit code 1 and an explicit unsolved-period summary can still export its database.
+Its original exit code and unsolved periods remain in `model_status_<index>.txt`;
+successful reporting does not establish model convergence. Crashes and incomplete
+runs still fail before reporting.
+Run one pipeline at a time. Use `POSTPROCESS=query` in the environment file or
+`--postprocess query` for native QUERY.
 
 For the default official QUERY backend, follow the existing steps below.
 

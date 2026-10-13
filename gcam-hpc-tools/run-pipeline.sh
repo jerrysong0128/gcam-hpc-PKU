@@ -38,8 +38,8 @@ echo "Output directory: $OUTPUTDIR"
 
 EXPECTED_ARGS=2
 
-# Keep the existing RUN flow; select only the per-scenario QUERY backend.
-export POSTPROCESS=query
+# Use environment.sh's backend; an explicit command-line option takes priority.
+export POSTPROCESS="${POSTPROCESS:-query}"
 if [[ "${1:-}" == "--postprocess" ]]; then
     export POSTPROCESS="${2:-}"
     shift 2 || exit 2
@@ -48,6 +48,7 @@ case "$POSTPROCESS" in
     query|gcamreport) ;;
     *) echo "Usage: $0 [--postprocess query|gcamreport] [template.xml batch.xml]" >&2; exit 2 ;;
 esac
+echo "QUERY backend: $POSTPROCESS"
 
 DEFAULT_CONFIG="${TOOLDIR}/configuration-sets/config/v82_default/v82_default_scenario_components.xml"
 DEFAULT_BATCH="${TOOLDIR}/configuration-sets/config/v82_default/v82_default_batch_2.xml"
@@ -76,17 +77,18 @@ INPUT_OPTIONS="--include=*.xml --include=*.ini --include=climate/*.csv --include
 OUT_OPTIONS="--include=*.xml --exclude=*"
 echo "Syncing GCAM input files into scratch directory..."
 echo "Syncing input directory to $SCRATCHDIR..."
-rsync -ai --recursive $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/
+mkdir -p "$SCRATCHDIR" || exit 1
+rsync -ai --recursive $INPUT_OPTIONS ${GCAMDIR}/input ${SCRATCHDIR}/ || exit 1
 
 echo "Syncing output queries to $SCRATCHDIR..."
 mkdir -p "${SCRATCHDIR}/output/xmldb_queries" "${SCRATCHDIR}/output/queries"
-rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/user_batch_queries/ ${SCRATCHDIR}/output/xmldb_queries/
-rsync -ai $OUT_OPTIONS ${GCAMDIR}/output/queries/ ${SCRATCHDIR}/output/queries/
+rsync -ai $OUT_OPTIONS ${TOOLDIR}/query-tools/user_batch_queries/ ${SCRATCHDIR}/output/xmldb_queries/ || exit 1
+rsync -ai $OUT_OPTIONS ${GCAMDIR}/output/queries/ ${SCRATCHDIR}/output/queries/ || exit 1
 
 GCAM_CHINA_QUERY_DIR="${GCAM_HPC_WORKSPACE}/gcam-china/output/queries"
 if [ -d "${GCAM_CHINA_QUERY_DIR}" ] && [ "${GCAM_CHINA_QUERY_DIR}" != "${GCAMDIR}/output/queries" ]; then
     echo "Syncing gcam-china output queries to $SCRATCHDIR..."
-    rsync -ai $OUT_OPTIONS ${GCAM_CHINA_QUERY_DIR}/ ${SCRATCHDIR}/output/queries/
+    rsync -ai $OUT_OPTIONS ${GCAM_CHINA_QUERY_DIR}/ ${SCRATCHDIR}/output/queries/ || exit 1
 fi
 
 # --------------------------------------------------------------------------------------------
@@ -129,14 +131,17 @@ sed -e "s/NUM_TASKS/${num_tasks}/g" -e "s/NTASKS_TOTAL/${ntasks_total}/g" "$PBS_
 > "$PBS_BATCHFILE"
 
 if [[ "$POSTPROCESS" == gcamreport ]]; then
-    bash "${TOOLDIR}/query-tools/reporting/container.sh" || exit 1
+    # Check paths on the submission node; run R/Java preflight in the allocation.
+    source "${TOOLDIR}/query-tools/reporting/container.sh"
+    report_prerequisites || exit 1
+    printf 'bash %q || exit $?\n' "${TOOLDIR}/query-tools/reporting/container.sh" >> "$PBS_BATCHFILE"
     echo 'pids=()' >> "$PBS_BATCHFILE"
 fi
 
 for (( i=0; i<$num_tasks; i++ )); do
     if [[ "$POSTPROCESS" == gcamreport ]]; then
         # Propagate report failures without depending on the old MPI binary.
-        printf 'srun -n 1 bash %q %q %s &\n' "$RUN_SCRIPT" "${template_path}/${template_root}" "$i" >> "$PBS_BATCHFILE"
+        printf 'srun -N 1 -n 1 bash %q %q %s &\n' "$RUN_SCRIPT" "${template_path}/${template_root}" "$i" >> "$PBS_BATCHFILE"
         echo 'pids+=( "$!" )' >> "$PBS_BATCHFILE"
     else
         echo "srun -n 1 ./gcam-hpc-tools/run-tools/run-task-wrapper.exe ${template_path}/${template_root} $i &" >> $PBS_BATCHFILE
@@ -156,11 +161,21 @@ echo "Run $tasks tasks on cluster (y/n)?"
 read run
 
 if [[ $run = 'y' ]]; then
-    job=$(sbatch --parsable $PBS_BATCHFILE)
+    mkdir -p "${GCAM_HPC_WORKSPACE}/gcam-runjob-log" || exit 1
+    job=$(sbatch --parsable "$PBS_BATCHFILE") || exit 1
+    job=${job%%;*}
+    [[ "$job" =~ ^[0-9]+$ ]] || { echo "ERROR: invalid Slurm RUN job ID: $job" >&2; exit 1; }
     echo "We are off and running with job $job"
-    job2=$(sbatch --parsable --dependency=afterok:$job ${TOOLDIR}/run-tools/merge-query-results.sh)
-    chmod +x ./gcam-hpc-tools/run-tools/monitor-jobs.sh
-    ./gcam-hpc-tools/run-tools/monitor-jobs.sh
+    state="$OUTPUTDIR/jobs.env"
+    printf 'OUTPUTDIR=%q\nSCRATCHDIR=%q\nRUN_JOB_ID=%q\n' "$OUTPUTDIR" "$SCRATCHDIR" "$job" > "$state" || exit 1
+    job2=$(sbatch --parsable --dependency=afterok:$job "${TOOLDIR}/run-tools/merge-query-results.sh") || {
+        echo "ERROR: merge submission failed; RUN job $job is recorded in $state" >&2; exit 1;
+    }
+    job2=${job2%%;*}
+    [[ "$job2" =~ ^[0-9]+$ ]] || { echo "ERROR: invalid Slurm merge job ID: $job2" >&2; exit 1; }
+    printf 'MERGE_JOB_ID=%q\n' "$job2" >> "$state"
+    echo "Merge job: $job2; job record: $state"
+    bash "${TOOLDIR}/run-tools/monitor-jobs.sh"
 fi
 
 exit
