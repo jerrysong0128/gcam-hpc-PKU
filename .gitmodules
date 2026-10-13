@@ -1,3 +1,6 @@
 [submodule "gcam-hpc-tools/query-tools/gcamreport"]
 	path = gcam-hpc-tools/query-tools/gcamreport
 	url = https://github.com/bc3LC/gcamreport
+[submodule "gcam-hpc-tools/query-tools/gcamchina-report"]
+	path = gcam-hpc-tools/query-tools/gcamchina-report
+	url = https://github.com/rongqizhu/GCAM-China-reporting.git
