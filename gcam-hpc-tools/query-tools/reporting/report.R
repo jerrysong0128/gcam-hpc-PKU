@@ -53,7 +53,7 @@ read_report_options <- function(config, mapping) {
   options$excluded_regions <- NULL
   if (length(excluded)) {
     if (!is.character(excluded) || anyNA(excluded)) stop("excluded_regions must be a character vector")
-    available <- gcamreport::available_regions(print = FALSE, GCAM_version = mapping)
+    available <- if (is.null(mapping)) "China" else gcamreport::available_regions(print = FALSE, GCAM_version = mapping)
     unknown_regions <- setdiff(excluded, available)
     if (length(unknown_regions)) stop("Unknown excluded regions: ", paste(unknown_regions, collapse = ", "))
     regions <- options$desired_regions
@@ -62,6 +62,52 @@ read_report_options <- function(config, mapping) {
     if (!length(options$desired_regions)) stop("Region selection is empty after exclusions")
   }
   options
+}
+
+run_china_report <- function(conn, scenario, config) {
+  source_dir <- Sys.getenv("GCAMCHINA_REPORT_SOURCE")
+  if (!file.exists(file.path(source_dir, "Reporting.R"))) {
+    stop("GCAM-China reporting submodule is missing: ", source_dir)
+  }
+  options <- read_report_options(config, NULL)
+  for (package in c("dplyr", "tidyr", "readr", "stringr")) library(package, character.only = TRUE)
+  reporting <- new.env(parent = globalenv())
+  reporting$home_dir <- source_dir
+  reporting$src_dir <- file.path(source_dir, "src")
+  reporting$map_dir <- file.path(source_dir, "mappings")
+  reporting$Scenarios <- scenario
+  sys.source(file.path(reporting$src_dir, "constants.R"), envir = reporting)
+  # Load upstream functions without initializing its plotting-only objects.
+  for (expr in parse(file.path(reporting$src_dir, "functions.R"))) {
+    if (is.call(expr) && identical(expr[[1]], as.name("<-")) &&
+        is.call(expr[[3]]) && identical(expr[[3]][[1]], as.name("function"))) eval(expr, envir = reporting)
+  }
+  sys.source(file.path(reporting$src_dir, "mapping.R"), envir = reporting)
+  reporting$prj <- rgcam::addScenario(conn, file.path(getwd(), "gcamchina-report.dat"),
+    scenario, file.path(source_dir, "src/query_use.xml"), clobber = TRUE, saveProj = FALSE)
+  # Keep upstream calculations; the wrapper supplies inputs and exports CSV.
+  # GDP is not exported by upstream and its query is absent in macro databases.
+  script <- parse(file.path(source_dir, "Reporting.R"))
+  setup <- vapply(script, function(expr) is.call(expr) &&
+    (as.character(expr[[1]]) %in% c("source", "write.csv") ||
+      (identical(expr[[1]], as.name("<-")) && is.symbol(expr[[2]]) &&
+        as.character(expr[[2]]) %in% c("Scenarios", "prj", "GDP_PPP_clean"))), logical(1))
+  for (expr in script[!setup]) eval(expr, envir = reporting)
+  report <- reporting$IAMC_format_china
+  names(report)[1:5] <- c("Model", "Scenario", "Region", "Variable", "Unit")
+  report$Model <- "GCAM-China"
+  if (!is.null(options$desired_regions) && !identical(options$desired_regions, "All")) {
+    report <- report[report$Region %in% options$desired_regions, , drop = FALSE]
+  }
+  if (!is.null(options$desired_variables) && !identical(options$desired_variables, "All")) {
+    selected <- Reduce(`|`, lapply(options$desired_variables, function(pattern) grepl(glob2rx(pattern), report$Variable)))
+    report <- report[if (isTRUE(options$inverse_desired_variables)) !selected else selected, , drop = FALSE]
+  }
+  if (!is.null(options$final_year)) {
+    years <- grep("^[0-9]{4}$", names(report), value = TRUE)
+    report <- report[, c(names(report)[1:5], years[as.integer(years) <= options$final_year]), drop = FALSE]
+  }
+  report
 }
 
 run_report <- function(args) {
@@ -73,6 +119,14 @@ run_report <- function(args) {
   scenarios <- rgcam::listScenariosInDB(conn)
   selected <- scenarios[scenarios$name == task$scenario, , drop = FALSE]
   if (nrow(selected) != 1L) stop("Expected one database entry for scenario ", task$scenario)
+  version <- as.character(selected$version[[1]])
+  if (grepl("china", paste(basename(args[[4]]), version), ignore.case = TRUE)) {
+    message("Scenario: ", task$scenario, "; reporting: GCAM-China; report config: ", args[[5]])
+    report <- run_china_report(conn, task$scenario, args[[5]])
+    if (!is.data.frame(report) || !nrow(report)) stop("GCAM-China reporting produced an empty report")
+    write.csv(report, "iamc.csv", row.names = FALSE, na = "")
+    return(invisible(NULL))
+  }
   mapping <- select_mapping(as.character(selected$version[[1]]),
                             gcamreport::available_GCAM_versions, args[[3]])
   options <- read_report_options(args[[5]], mapping)
@@ -91,7 +145,6 @@ run_report <- function(args) {
   if (!is.data.frame(report) || !nrow(report) || !all(required %in% names(report))) {
     stop("gcamreport produced an empty or invalid IAMC report")
   }
-  if (grepl("china", basename(args[[4]]), ignore.case = TRUE)) report$Model <- "GCAM-China"
   write.csv(report, paste0(output_file, ".csv"), row.names = FALSE, na = "")
   unlink(file.path(task$db_path, paste0(task$db_name, "_gcamreport.dat")))
 }

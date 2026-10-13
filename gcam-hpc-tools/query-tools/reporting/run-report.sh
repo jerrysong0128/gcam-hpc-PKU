@@ -5,6 +5,7 @@ set -euo pipefail
 index=$1
 [[ "$index" =~ ^[0-9]+$ ]] || exit 2
 adapter=$(cd "$TOOLDIR/query-tools/reporting" && pwd -P)
+sources=$(cd "$adapter/.." && pwd -P)
 config=${GCAMREPORT_CONFIG:-$adapter/report-config.R}
 [[ "$config" = /* && -r "$config" ]] || {
     echo "ERROR: GCAMREPORT_CONFIG must be an absolute readable path: $config" >&2; exit 1;
@@ -21,8 +22,8 @@ trap 'rm -rf "$stage"' EXIT
 mkdir "$stage/tmp"
 touch "$stage/.here"
 "${REPORT_CONTAINER[@]}" --bind "$scratch:$scratch" --bind "$run_dir:$run_dir" \
-    --bind "$adapter:$adapter:ro" --bind "$config:$config:ro" --pwd "$stage" \
-    --env "TMPDIR=$stage/tmp,TZ=UTC" "$GCAMREPORT_SIF" \
+    --bind "$sources:$sources:ro" --bind "$config:$config:ro" --pwd "$stage" \
+    --env "TMPDIR=$stage/tmp,TZ=UTC,GCAMCHINA_REPORT_SOURCE=$sources/gcamchina-report" "$GCAMREPORT_SIF" \
     Rscript --vanilla "$adapter/report.R" "$scratch/exe_$index/config_this.xml" \
     "$scratch/exe_$index" "${GCAMREPORT_VERSION:-}" "$GCAMDIR" "$config" > "$dest/report.log" 2>&1 || {
         echo "ERROR: gcamreport failed; inspect $dest/report.log" >&2; exit 1;
