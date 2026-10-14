@@ -1,8 +1,11 @@
 # Export GCAM databases to IAMC CSV
 
-[Repository quickstart](../../../README.md) ·
+[QUERY overview](../../../README.md#query) ·
 [Wiki guide (中文)](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/gcamreport) ·
 [GCAM-China source notes](gcamchina-report.md)
+
+This guide covers **QUERY → Option 2: gcamreport** in the
+**BUILD → RUN → QUERY** workflow. Option 1 (GCAM QUERY) remains the default.
 
 Use `run-pipeline.sh --postprocess gcamreport` for both gcam-core and
 GCAM-China:

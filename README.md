@@ -2,15 +2,16 @@
 
 <img src="asset/framework/gcam-hpc-tutorial-Run-title.png" alt="GCAM-HPC parallel scenario runs" width="1000">
 
-Build GCAM, run scenario batches on Slurm, and merge each scenario's CSV output.
+**BUILD → RUN → QUERY**: build GCAM, run scenario batches on Slurm, and query
+and merge each scenario's CSV output.
 The toolkit supports `gcam-core` and `gcam-china` source layouts.
 
 [Wiki](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki) ·
-[Build](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/1-Build-EN) ·
-[Run](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/2-Run-EN) ·
-[gcamreport → IAMC: environment and commands](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/gcamreport)
+[BUILD](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/1-Build-EN) ·
+[RUN](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/2-Run-EN) ·
+[QUERY](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/3-Query-EN)
 
-## Set up the workspace
+## BUILD
 
 Clone with both reporting submodules:
 
@@ -57,12 +58,63 @@ make gcam -j 16
 Adjust the build parallelism to the allocation. Other sites also need matching
 compiler/runtime paths and Slurm partitions; see the [build guide](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/1-Build-EN).
 
-## Choose CSV output and submit
+## RUN
+
+Before submission, prepare either [QUERY option](#query) below. The pipeline
+runs the selected query/report step after each model scenario and merges the CSVs.
+
+Submit from the login node, using a template and batch matching your model:
+
+```bash
+bash "$TOOLDIR/run-pipeline.sh" \
+    /absolute/path/to/template.xml \
+    /absolute/path/to/batch.xml
+```
+
+This uses Option 1 (GCAM QUERY) by default. For Option 2, add
+`--postprocess gcamreport` before the XML arguments; see the
+[gcamreport guide](gcam-hpc-tools/query-tools/reporting/README.md).
+
+The pipeline loads `environment.sh` itself. Answer `y` → `y` → scenario count
+→ `y`; `N` runs the first `N` generated scenarios. Omitting the XML arguments
+selects the bundled **gcam-core 8.2** example, so pass China configurations
+explicitly for GCAM-China.
+
+Inputs synchronize to the shared `gcam-scratch/input`. Results are under
+`gcam-scratch/output/run_<timestamp>/`. Run one pipeline at a time in each
+workspace. Successful merging normally removes scenario databases and
+temporary configurations; set `GCAM_KEEP_SCRATCH=1` before submission to keep
+them. Check `model_status_<index>.txt` for convergence separately from report
+success.
+
+## QUERY
+
+Both options work with gcam-core and GCAM-China. Configure your chosen option
+before submitting RUN.
 
 | Selection | Preparation | Merged result |
 | --- | --- | --- |
-| `--postprocess query` (default) | Generate native QUERY XML and set `modelinterface-batch.xml`; [guide](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/3-Query-EN) | `Final_<merge-jobid>.csv` |
-| `--postprocess gcamreport` | Prepare the reporting SIF and edit `reporting/report-config.R`; [guide](gcam-hpc-tools/query-tools/reporting/README.md) | `IAMC_Final_<merge-jobid>.csv` |
+| Option 1: GCAM QUERY (default) | Generate QUERY XML and set `modelinterface-batch.xml`; [guide](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/3-Query-EN#option-1-gcam-query-default) | `Final_<merge-jobid>.csv` |
+| Option 2: gcamreport | Prepare the reporting SIF and edit `reporting/report-config.R`; [guide](gcam-hpc-tools/query-tools/reporting/README.md) | `IAMC_Final_<merge-jobid>.csv` |
+
+### Option 1: GCAM QUERY (default)
+
+Edit `query-tools/batch_query_generator/query-config.yaml`, then generate
+the QUERY XML:
+
+```bash
+cd "$TOOLDIR/query-tools/batch_query_generator"
+python3 build_queries.py query-config.yaml
+```
+
+Set `<queryFile>` in `query-tools/user_batch_queries/modelinterface-batch.xml`
+to the generated filename at its scratch path. ModelInterface queries each
+scenario database and the shell merges its CSVs. The
+[QUERY Wiki page](https://github.com/jerrysong0128/gcam-hpc-PKU/wiki/3-Query-EN#option-1-gcam-query-default)
+explains the paths and configuration. Omit `--postprocess` or use
+`--postprocess query` when submitting RUN.
+
+### Option 2: gcamreport
 
 The IAMC route uses the same container and configuration for both models.
 It detects GCAM-China from the model directory name or database version and
@@ -84,25 +136,10 @@ already prepared. The [dedicated IAMC Wiki page](https://github.com/jerrysong012
 covers dependencies, environment variables, report selections and the tested
 GCAM-China SSP1 + SSP2 example.
 
-Submit from the login node, using a template and batch matching your model:
-
-```bash
-bash "$TOOLDIR/run-pipeline.sh" --postprocess gcamreport \
-    /absolute/path/to/template.xml \
-    /absolute/path/to/batch.xml
-```
-
-The pipeline loads `environment.sh` itself. Answer `y` → `y` → scenario count
-→ `y`; `N` runs the first `N` generated scenarios. Omitting the XML arguments
-selects the bundled **gcam-core 8.2** example, so pass China configurations
-explicitly for GCAM-China.
-
-Inputs synchronize to the shared `gcam-scratch/input`. Results are under
-`gcam-scratch/output/run_<timestamp>/`. Run one pipeline at a time in each
-workspace. Successful merging normally removes scenario databases and
-temporary configurations; set `GCAM_KEEP_SCRATCH=1` before submission to keep
-them. Check `model_status_<index>.txt` for convergence separately from report
-success.
+Follow the separate [gcamreport guide](gcam-hpc-tools/query-tools/reporting/README.md)
+for environment configuration and full submission commands with
+`--postprocess gcamreport`. This option exports IAMC CSV directly from the
+database; it does not require Option 1's QUERY XML.
 
 ## Acknowledgements
 
